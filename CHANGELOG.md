@@ -13,6 +13,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- CI now also runs on Ruby 4.0, plus `ruby-head` (allowed to fail).
 - README rewritten: quickstarts for Cursor, Claude Code and Codex, a tools and CLI reference, how it works, and
   a compatibility table.
 

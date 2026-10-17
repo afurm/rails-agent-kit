@@ -7,11 +7,17 @@ on:
 
 jobs:
   test:
+    name: Ruby ${{ matrix.ruby }}${{ matrix.experimental && ' (allowed to fail)' || '' }}
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.2", "3.3", "3.4"]
+        ruby: ["3.2", "3.3", "3.4", "4.0"]
+        experimental: [false]
+        include:
+          - ruby: head
+            experimental: true
     steps:
       - uses: actions/checkout@v5
       - uses: ruby/setup-ruby@v1
