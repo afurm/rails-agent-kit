@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Test double for a Rails app's bin/rails. Supports `routes --expanded`.
+if ARGV == ["routes", "--expanded"]
+  print File.read(File.expand_path("../routes_expanded.txt", __dir__))
+else
+  warn "fake bin/rails: unsupported args #{ARGV.inspect}"
+  exit 1
+end

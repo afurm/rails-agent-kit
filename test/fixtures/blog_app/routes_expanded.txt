@@ -1,0 +1,42 @@
+--[ Route 1 ]-------------------------------------------------------------------------------------
+Prefix            | post_comments
+Verb              | POST
+URI               | /posts/:post_id/comments(.:format)
+Controller#Action | comments#create
+Source Location   | config/routes.rb:3
+--[ Route 2 ]-------------------------------------------------------------------------------------
+Prefix            | post_comment
+Verb              | DELETE
+URI               | /posts/:post_id/comments/:id(.:format)
+Controller#Action | comments#destroy
+Source Location   | config/routes.rb:3
+--[ Route 3 ]-------------------------------------------------------------------------------------
+Prefix            | posts
+Verb              | GET
+URI               | /posts(.:format)
+Controller#Action | posts#index
+Source Location   | config/routes.rb:2
+--[ Route 4 ]-------------------------------------------------------------------------------------
+Prefix            | 
+Verb              | POST
+URI               | /posts(.:format)
+Controller#Action | posts#create
+Source Location   | config/routes.rb:2
+--[ Route 5 ]-------------------------------------------------------------------------------------
+Prefix            | post
+Verb              | GET
+URI               | /posts/:id(.:format)
+Controller#Action | posts#show
+Source Location   | config/routes.rb:2
+--[ Route 6 ]-------------------------------------------------------------------------------------
+Prefix            | rails_health_check
+Verb              | GET
+URI               | /up(.:format)
+Controller#Action | rails/health#show
+Source Location   | config/routes.rb:5
+--[ Route 7 ]-------------------------------------------------------------------------------------
+Prefix            | root
+Verb              | GET
+URI               | /
+Controller#Action | posts#index
+Source Location   | config/routes.rb:6

@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require_relative "../lib/rails_agent_kit"
+
+options = { root: Dir.pwd, routes_file: nil }
+parser = OptionParser.new do |o|
+  o.banner = "Usage: rails-agent-kit [--root PATH] [--routes-file FILE]\n\n" \
+             "Starts an MCP server on stdio exposing the Rails app's schema and routes."
+  o.on("--root PATH", "Rails app root (default: current directory)") { |v| options[:root] = v }
+  o.on("--routes-file FILE", "Use a saved `bin/rails routes --expanded` dump instead of booting the app") { |v| options[:routes_file] = v }
+  o.on("-v", "--version", "Print version") do
+    puts RailsAgentKit::VERSION
+    exit
+  end
+  o.on("-h", "--help", "Show this help") do
+    puts o
+    exit
+  end
+end
+
+begin
+  parser.parse!(ARGV)
+rescue OptionParser::ParseError => e
+  warn e.message
+  warn parser
+  exit 64
+end
+
+root = File.expand_path(options[:root])
+unless File.directory?(root)
+  warn "rails-agent-kit: --root #{root} is not a directory"
+  exit 66
+end
+
+require_relative "../lib/rails_agent_kit/server"
+RailsAgentKit::Server.run_stdio(root: root, routes_file: options[:routes_file])
