@@ -4,9 +4,40 @@
 require "optparse"
 require_relative "../lib/rails_agent_kit"
 
+if ARGV.first == "install-skills"
+  ARGV.shift
+  opts = { root: Dir.pwd, agent: "cursor", force: false }
+  skills_parser = OptionParser.new do |o|
+    o.banner = "Usage: rails-agent-kit install-skills [--root PATH] [--agent cursor|claude] [--force] [SKILL...]\n\n" \
+               "Copies the bundled agent skills into the app (e.g. .cursor/skills/<name>/SKILL.md)."
+    o.on("--root PATH", "Rails app root (default: current directory)") { |v| opts[:root] = v }
+    o.on("--agent AGENT", "cursor (default) or claude") { |v| opts[:agent] = v }
+    o.on("--force", "Overwrite skills you have edited locally") { opts[:force] = true }
+    o.on("-h", "--help", "Show this help") do
+      puts o
+      exit
+    end
+  end
+
+  begin
+    skills_parser.parse!(ARGV)
+    installer = RailsAgentKit::SkillInstaller.new(opts[:root], agent: opts[:agent], force: opts[:force])
+    results = ARGV.empty? ? installer.install : installer.install(ARGV)
+  rescue OptionParser::ParseError, RailsAgentKit::Error => e
+    warn "rails-agent-kit: #{e.message}"
+    exit 64
+  end
+  results.each do |r|
+    note = r.status == :skipped ? " (differs from bundled copy; use --force to overwrite)" : ""
+    puts "#{r.status.to_s.ljust(9)} #{r.path}#{note}"
+  end
+  exit 0
+end
+
 options = { root: Dir.pwd, routes_file: nil }
 parser = OptionParser.new do |o|
-  o.banner = "Usage: rails-agent-kit [--root PATH] [--routes-file FILE]\n\n" \
+  o.banner = "Usage: rails-agent-kit [--root PATH] [--routes-file FILE]\n" \
+             "       rails-agent-kit install-skills --help\n\n" \
              "Starts an MCP server on stdio exposing the Rails app's schema and routes."
   o.on("--root PATH", "Rails app root (default: current directory)") { |v| options[:root] = v }
   o.on("--routes-file FILE", "Use a saved `bin/rails routes --expanded` dump instead of booting the app") { |v| options[:routes_file] = v }

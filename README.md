@@ -87,6 +87,22 @@ claude mcp add rails-agent-kit \
 `rails_routes` runs the app's `bin/rails` with Bundler's environment cleared, so your app uses its own Gemfile,
 not rails-agent-kit's.
 
+## Agent skill: Rails 8 conventions
+
+The gem bundles a [Cursor skill](https://cursor.com/docs/skills),
+[`skills/rails-8-conventions/SKILL.md`](skills/rails-8-conventions/SKILL.md). It tells the agent to check
+`rails_schema`, `rails_routes` and `Gemfile.lock` before it edits code, then follow Rails 8 defaults:
+`params.expect`, the built-in authentication generator, `rate_limit`, Solid Queue/Cache/Cable, Hotwire with
+importmap/Propshaft, reversible migrations, and tests in the framework the app already uses. It also covers a
+paired Next.js frontend. Install it into your app:
+
+```sh
+rails-agent-kit install-skills --root /path/to/your/rails/app                 # -> .cursor/skills/rails-8-conventions/SKILL.md
+rails-agent-kit install-skills --root /path/to/your/rails/app --agent claude  # -> .claude/skills/...
+```
+
+Running it again is safe. It won't overwrite a skill you've edited unless you pass `--force`.
+
 ## Development
 
 ```sh

@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.metadata["bug_tracker_uri"] = "#{spec.homepage}/issues"
   spec.metadata["rubygems_mfa_required"] = "true"
 
-  spec.files = Dir["lib/**/*.rb", "exe/*", "README.md", "LICENSE"]
+  spec.files = Dir["lib/**/*.rb", "skills/**/SKILL.md", "exe/*", "README.md", "LICENSE"]
   spec.bindir = "exe"
   spec.executables = ["rails-agent-kit"]
   spec.require_paths = ["lib"]
