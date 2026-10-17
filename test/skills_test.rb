@@ -56,5 +56,7 @@ class SkillsTest < Minitest::Test
   def test_gemspec_packages_the_skills
     spec = Gem::Specification.load(File.expand_path("../rails-agent-kit.gemspec", __dir__))
     assert_includes spec.files, "skills/rails-8-conventions/SKILL.md"
+    assert_includes spec.files, "CHANGELOG.md"
+    assert spec.metadata["changelog_uri"], "gemspec needs changelog_uri"
   end
 end
