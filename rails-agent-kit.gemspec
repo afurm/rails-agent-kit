@@ -1,0 +1,28 @@
+# frozen_string_literal: true
+
+require_relative "lib/rails_agent_kit/version"
+
+Gem::Specification.new do |spec|
+  spec.name = "rails-agent-kit"
+  spec.version = RailsAgentKit::VERSION
+  spec.authors = ["Andrii Furmanets"]
+  spec.summary = "MCP server that gives coding agents ground truth about a Rails app's schema and routes."
+  spec.description = "rails-agent-kit is a small Model Context Protocol (stdio) server. It exposes a Rails app's " \
+                     "database schema (parsed from db/schema.rb without booting the app) and its routes to " \
+                     "coding agents such as Cursor and Claude Code."
+  spec.homepage = "https://github.com/afurm/rails-agent-kit"
+  spec.license = "MIT"
+  spec.required_ruby_version = ">= 3.2"
+
+  spec.metadata["homepage_uri"] = spec.homepage
+  spec.metadata["source_code_uri"] = spec.homepage
+  spec.metadata["bug_tracker_uri"] = "#{spec.homepage}/issues"
+  spec.metadata["rubygems_mfa_required"] = "true"
+
+  spec.files = Dir["lib/**/*.rb", "exe/*", "README.md", "LICENSE"]
+  spec.bindir = "exe"
+  spec.executables = ["rails-agent-kit"]
+  spec.require_paths = ["lib"]
+
+  spec.add_dependency "mcp", "~> 1.8"
+end
