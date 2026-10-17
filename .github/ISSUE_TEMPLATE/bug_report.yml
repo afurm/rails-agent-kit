@@ -1,0 +1,45 @@
+name: Bug report
+description: Something is wrong with a tool's output, the CLI, or a skill.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! **Security problems** go through [private advisories](https://github.com/afurm/rails-agent-kit/security/advisories/new), not here.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you got instead. Paste the tool output if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: The smallest `db/schema.rb`, `config/routes.rb` or command that shows the problem.
+      render: ruby
+  - type: input
+    id: version
+    attributes:
+      label: rails-agent-kit version
+      placeholder: "rails-agent-kit --version"
+    validations:
+      required: true
+  - type: input
+    id: ruby-rails
+    attributes:
+      label: Ruby and Rails versions
+      placeholder: "Ruby 3.3.5, Rails 8.0.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: client
+    attributes:
+      label: MCP client
+      options: [Cursor, Claude Code, Codex, Claude Desktop, VS Code / Copilot, Other]
+  - type: input
+    id: os
+    attributes:
+      label: OS and Ruby version manager
+      placeholder: "macOS 15, mise"

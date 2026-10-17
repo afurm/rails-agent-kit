@@ -1,0 +1,19 @@
+# Categories for auto-generated GitHub release notes (gh release create --generate-notes).
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+      - duplicate
+      - invalid
+      - wontfix
+  categories:
+    - title: Breaking changes
+      labels: [breaking-change]
+    - title: Features
+      labels: [feature, enhancement]
+    - title: Fixes
+      labels: [fix, bug]
+    - title: Docs
+      labels: [docs, documentation]
+    - title: Internal
+      labels: ["*"]

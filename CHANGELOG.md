@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Project docs: CONTRIBUTING, CODE_OF_CONDUCT (Contributor Covenant 2.1), SECURITY, RELEASING, ROADMAP,
+  issue and PR templates, CODEOWNERS, and release-note categories (`.github/release.yml`).
+
+### Changed
+
+- README rewritten: quickstarts for Cursor, Claude Code and Codex, a tools and CLI reference, how it works, and
+  a compatibility table.
+
 ## [0.1.0] - 2026-10-17
 
 ### Added
