@@ -3,7 +3,9 @@
 A tiny [Model Context Protocol](https://modelcontextprotocol.io) server that gives coding agents
 (Cursor, Claude Code, …) **ground truth about your Rails app**: its database schema and its routes.
 
-> Status: early scaffold (v0.1.0). Not published to RubyGems yet — run it from source.
+[![Gem Version](https://badge.fury.io/rb/rails-agent-kit.svg)](https://rubygems.org/gems/rails-agent-kit)
+
+> Status: early (v0.1.0). Feedback and issues welcome.
 
 ## Why (the 30-second version)
 
@@ -20,17 +22,21 @@ Both tools are read-only. Output is JSON.
 
 ## Install
 
-From source (today):
-
 ```sh
-git clone https://github.com/afurm/rails-agent-kit
-cd rails-agent-kit
-bundle install
-# try it against an app:
-BUNDLE_GEMFILE=$PWD/Gemfile bundle exec rails-agent-kit --root /path/to/your/rails/app
+gem install rails-agent-kit
 ```
 
-Once released (not yet): `gem install rails-agent-kit`.
+Or add it to your Rails app's development group:
+
+```sh
+bundle add rails-agent-kit --group development
+```
+
+Then add the MCP server to your agent (see [MCP client config](#mcp-client-config)) and, if you like, install the Rails 8 skill:
+
+```sh
+rails-agent-kit install-skills --root /path/to/your/rails/app
+```
 
 Requires Ruby 3.2+. Runtime dependency: the official [`mcp`](https://github.com/modelcontextprotocol/ruby-sdk) Ruby SDK.
 
@@ -58,31 +64,46 @@ rails-agent-kit --root . --routes-file tmp/routes.txt
 
 ## MCP client config
 
-Replace the paths with absolute paths on your machine.
+Replace `/path/to/your/rails/app` with the absolute path to your app.
 
-**Cursor** — `.cursor/mcp.json` in your Rails app (or `~/.cursor/mcp.json`):
+**Cursor**: `.cursor/mcp.json` in your Rails app, or `~/.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "rails-agent-kit": {
-      "command": "bundle",
-      "args": ["exec", "rails-agent-kit", "--root", "/path/to/your/rails/app"],
-      "env": { "BUNDLE_GEMFILE": "/path/to/rails-agent-kit/Gemfile" }
+      "command": "rails-agent-kit",
+      "args": ["--root", "/path/to/your/rails/app"]
     }
   }
 }
 ```
 
+If you installed it with `bundle add`, use `"command": "bundle"` and
+`"args": ["exec", "rails-agent-kit", "--root", "/path/to/your/rails/app"]` instead, and add
+`"env": { "BUNDLE_GEMFILE": "/path/to/your/rails/app/Gemfile" }`.
+
 **Claude Code**:
 
 ```sh
-claude mcp add rails-agent-kit \
-  -e BUNDLE_GEMFILE=/path/to/rails-agent-kit/Gemfile \
+claude mcp add rails-agent-kit -- rails-agent-kit --root /path/to/your/rails/app
+# or, via the app's bundle:
+claude mcp add rails-agent-kit -e BUNDLE_GEMFILE=/path/to/your/rails/app/Gemfile \
   -- bundle exec rails-agent-kit --root /path/to/your/rails/app
 ```
 
-**Claude Desktop** — `claude_desktop_config.json` uses the same `mcpServers` block as Cursor above.
+**Claude Desktop**: `claude_desktop_config.json` takes the same `mcpServers` block as Cursor above.
+
+<details>
+<summary>Running from source</summary>
+
+```sh
+git clone https://github.com/afurm/rails-agent-kit
+cd rails-agent-kit && bundle install
+BUNDLE_GEMFILE=$PWD/Gemfile bundle exec rails-agent-kit --root /path/to/your/rails/app
+```
+
+</details>
 
 `rails_routes` runs the app's `bin/rails` with Bundler's environment cleared, so your app uses its own Gemfile,
 not rails-agent-kit's.
