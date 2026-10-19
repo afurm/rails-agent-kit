@@ -8,11 +8,22 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `rails_schema` takes `table` as an array or a comma-separated list, so related tables come back in one call.
+  Tables that don't exist are listed in `missing_tables`.
+- `rails_schema` `search`: a case-insensitive match on table and column names (for example `search: "email"`).
+- `rails_schema` `detail`: `overview` or `full`.
 - Project docs: CONTRIBUTING, CODE_OF_CONDUCT (Contributor Covenant 2.1), SECURITY, RELEASING, ROADMAP,
   issue and PR templates, CODEOWNERS, and release-note categories (`.github/release.yml`).
 
 ### Changed
 
+- **`rails_schema` with no arguments now returns a compact overview** (each table's column count, non-default
+  primary key and foreign key targets) instead of the whole schema. Pass `detail: "full"` for the old output. On
+  a generated 300-table schema the default answer drops from about 1.2 MB to 23 KB.
+- `rails_schema` answers over 60 KB are replaced by the overview with `truncated: true` and a note on how to
+  narrow the request.
+- Tool responses are compact JSON instead of pretty-printed, which roughly halves their size.
+- The server instructions describe the overview, then `table:` / `search:` flow.
 - CI now also runs on Ruby 4.0, plus `ruby-head` (allowed to fail).
 - README rewritten: quickstarts for Cursor, Claude Code and Codex, a tools and CLI reference, how it works, and
   a compatibility table.

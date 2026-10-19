@@ -38,14 +38,20 @@ class ServerTest < Minitest::Test
     tools = by_id[1].dig("result", "tools")
     assert_equal %w[rails_routes rails_schema], tools.map { |t| t["name"] }.sort
     schema_tool = tools.find { |t| t["name"] == "rails_schema" }
-    assert_equal "string", schema_tool.dig("inputSchema", "properties", "table", "type")
+    props = schema_tool.dig("inputSchema", "properties")
+    assert_equal %w[array string], props.dig("table", "anyOf").map { |s| s["type"] }.sort
+    assert_equal "string", props.dig("search", "type")
+    assert_equal %w[full overview], props.dig("detail", "enum").sort
   end
 
   def test_tool_calls
     responses = rpc(fixture_path("blog_app"), init, initialized,
                     call_tool(1, "rails_schema", { table: "users" }),
                     call_tool(2, "rails_routes", { filter: "health" }),
-                    call_tool(3, "rails_schema", { table: "missing" }))
+                    call_tool(3, "rails_schema", { table: "missing" }),
+                    call_tool(4, "rails_schema"),
+                    call_tool(5, "rails_schema", { table: %w[posts users] }),
+                    call_tool(6, "rails_schema", { search: "email" }))
     by_id = responses.to_h { |r| [r["id"], r] }
 
     schema = JSON.parse(by_id[1].dig("result", "content", 0, "text"))
@@ -57,6 +63,16 @@ class ServerTest < Minitest::Test
     assert_equal ["/up(.:format)"], routes["routes"].map { |r| r["path"] }
 
     assert_equal true, by_id[3].dig("result", "isError")
+
+    overview = JSON.parse(by_id[4].dig("result", "content", 0, "text"))
+    assert_equal "overview", overview["detail"]
+    assert_equal({ "name" => "users", "columns" => 7 }, overview["tables"].find { |t| t["name"] == "users" })
+
+    pair = JSON.parse(by_id[5].dig("result", "content", 0, "text"))
+    assert_equal %w[posts users], pair["tables"].map { |t| t["name"] }
+
+    found = JSON.parse(by_id[6].dig("result", "content", 0, "text"))
+    assert_equal ["users"], found["matches"].map { |m| m["table"] }
   end
 
   def test_routes_fallback_over_mcp

@@ -13,8 +13,11 @@ module RailsAgentKit
       MCP::Server.new(
         name: "rails-agent-kit",
         version: RailsAgentKit::VERSION,
-        instructions: "Ground truth about the Rails app at #{context[:root]}: use rails_schema for tables/columns/indexes " \
-                      "and rails_routes for HTTP routes before guessing model attributes or URL helpers.",
+        instructions: "Ground truth about the Rails app at #{context[:root]}. Check it before guessing model " \
+                      "attributes or URL helpers. rails_schema with no arguments lists every table (column counts " \
+                      "and foreign key targets); then pass table: (one name or an array) for columns, indexes " \
+                      "and foreign keys, or search: to find a column by name. rails_routes lists HTTP routes; " \
+                      "pass filter: to narrow them.",
         tools: [Tools::RailsSchema, Tools::RailsRoutes],
         server_context: context
       )
@@ -34,7 +37,7 @@ module RailsAgentKit
       end
 
       def json_response(data, error: false)
-        MCP::Tool::Response.new([{ type: "text", text: JSON.pretty_generate(data) }], error: error)
+        MCP::Tool::Response.new([{ type: "text", text: JSON.generate(data) }], error: error)
       end
     end
 
@@ -42,18 +45,31 @@ module RailsAgentKit
       extend Helpers
 
       tool_name "rails_schema"
-      description "Database schema of the Rails app (tables, columns with types/null/default, indexes, foreign keys), " \
-                  "parsed from db/schema.rb (or db/structure.sql) without booting the app."
+      description "Database schema of the Rails app, parsed from db/schema.rb (or db/structure.sql) without booting " \
+                  "the app. With no arguments it returns a compact overview: every table with its column count, " \
+                  "non-default primary key and foreign key targets. Pass table for full columns (type, null, " \
+                  "default, ...), indexes and foreign keys, or search to find tables and columns by name."
       input_schema(
         properties: {
-          table: { type: "string", description: "Only return this table (exact name). Omit for all tables." }
+          table: {
+            anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
+            description: "Table name(s) to return in full: one exact name, an array, or a comma-separated list."
+          },
+          search: {
+            type: "string",
+            description: "Case-insensitive substring matched against table and column names, e.g. \"email\"."
+          },
+          detail: {
+            type: "string", enum: SchemaInspector::DETAILS,
+            description: "\"overview\" (default with no table/search) or \"full\" (default with table)."
+          }
         }
       )
       annotations(read_only_hint: true, destructive_hint: false, idempotent_hint: true, open_world_hint: false)
 
-      def self.call(server_context:, table: nil)
+      def self.call(server_context:, table: nil, search: nil, detail: nil)
         root = context_value(server_context, :root) || Dir.pwd
-        result = SchemaInspector.new(root).call(table: table)
+        result = SchemaInspector.new(root).call(table: table, search: search, detail: detail)
         json_response(result, error: result.key?(:error))
       end
     end

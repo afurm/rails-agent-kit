@@ -127,8 +127,13 @@ Both tools are read-only and return JSON.
 
 | Tool | Parameters | Returns | Boots the app? |
 | --- | --- | --- | --- |
-| `rails_schema` | `table` (optional, exact table name) | Tables, columns (type, null, default, limit, …), indexes, foreign keys | **No.** Parses `db/schema.rb` statically, with a best-effort fallback to `db/structure.sql` |
+| `rails_schema` | All optional. `table`: one exact name, an array or a comma-separated list. `search`: case-insensitive part of a table or column name. `detail`: `overview` or `full` | With no arguments, a compact overview (each table's column count, non-default primary key and foreign key targets). With `table`, full columns (type, null, default, limit, …), indexes and foreign keys. With `search`, the matching tables and columns | **No.** Parses `db/schema.rb` statically, with a best-effort fallback to `db/structure.sql` |
 | `rails_routes` | `filter` (optional, case-insensitive substring of name, path, verb or `controller#action`) | Each route's name, verb, path, `controller#action` and source location | **Yes.** Runs `bin/rails routes --expanded`. If that fails or times out, it explains why and returns the raw `config/routes.rb` |
+
+Responses are compact (single-line) JSON. Agents usually call `rails_schema` with no arguments first, so that
+answer stays small even on large apps: a generated 300-table schema gives about 23 KB, where the full dump is
+over 1 MB. Any `rails_schema` answer over 60 KB comes back as the overview plus a note on how to narrow the
+request (`truncated: true`).
 
 ## CLI reference
 

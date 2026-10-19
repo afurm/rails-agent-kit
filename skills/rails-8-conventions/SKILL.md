@@ -20,8 +20,9 @@ change the code the way this app already does things.
 
 ## 1. Check the facts before you edit
 
-- **Schema:** call the `rails_schema` MCP tool (pass `table:` to get one table) before
-  you write a model attribute, query, validation, fixture or migration. Without the
+- **Schema:** call the `rails_schema` MCP tool before you write a model attribute, query,
+  validation, fixture or migration. With no arguments it lists the tables; pass `table:`
+  (one name or an array) for their columns, or `search:` to find a column by name. Without the
   tool, read `db/schema.rb` (or `db/structure.sql`). Never guess a column name, type,
   nullability or default.
 - **Routes:** call the `rails_routes` MCP tool (pass `filter:`) before you use a

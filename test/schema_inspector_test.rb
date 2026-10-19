@@ -7,7 +7,7 @@ class SchemaInspectorTest < Minitest::Test
   include FixtureHelpers
 
   def test_prefers_schema_rb
-    result = RailsAgentKit::SchemaInspector.new(fixture_path("blog_app")).call
+    result = RailsAgentKit::SchemaInspector.new(fixture_path("blog_app")).call(detail: "full")
     assert_equal "db/schema.rb", result[:source]
     assert_equal 4, result[:tables].size
   end
@@ -25,7 +25,7 @@ class SchemaInspectorTest < Minitest::Test
   end
 
   def test_falls_back_to_structure_sql
-    result = RailsAgentKit::SchemaInspector.new(fixture_path("sql_app")).call
+    result = RailsAgentKit::SchemaInspector.new(fixture_path("sql_app")).call(detail: "full")
     assert_equal "db/structure.sql", result[:source]
     assert_match(/best-effort/, result[:note])
 
