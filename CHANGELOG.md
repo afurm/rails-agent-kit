@@ -12,6 +12,8 @@ All notable changes to this project are documented here. The format follows
   Tables that don't exist are listed in `missing_tables`.
 - `rails_schema` `search`: a case-insensitive match on table and column names (for example `search: "email"`).
 - `rails_schema` `detail`: `overview` or `full`.
+- Release automation: pushing a `vX.Y.Z` tag runs CI, publishes the gem with RubyGems trusted publishing and
+  creates the GitHub release from the CHANGELOG (`.github/workflows/release.yml`, `script/release_notes.rb`).
 - Project docs: CONTRIBUTING, CODE_OF_CONDUCT (Contributor Covenant 2.1), SECURITY, RELEASING, ROADMAP,
   issue and PR templates, CODEOWNERS, and release-note categories (`.github/release.yml`).
 
