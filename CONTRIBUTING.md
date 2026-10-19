@@ -68,6 +68,12 @@ To try your working copy against a real app:
 BUNDLE_GEMFILE=$PWD/Gemfile bundle exec exe/rails-agent-kit --root /path/to/a/rails/app
 ```
 
+To preview the docs site (`docs/`, Jekyll with Just the Docs):
+
+```sh
+cd docs && bundle install && bundle exec jekyll serve   # http://localhost:4000/rails-agent-kit/
+```
+
 ### Project layout
 
 | Path | What lives there |
@@ -78,6 +84,7 @@ BUNDLE_GEMFILE=$PWD/Gemfile bundle exec exe/rails-agent-kit --root /path/to/a/ra
 | `lib/rails_agent_kit/skill_installer.rb` | `install-skills` |
 | `skills/<name>/SKILL.md` | Bundled agent skills (shipped in the gem) |
 | `exe/rails-agent-kit` | CLI entry point |
+| `docs/` | The documentation site, deployed to GitHub Pages from `main` |
 | `test/fixtures/` | Small fixture apps: `schema.rb`, `structure.sql`, captured routes, a stub `bin/rails` |
 
 ## Tests
