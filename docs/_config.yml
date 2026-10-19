@@ -1,0 +1,52 @@
+title: rails-agent-kit
+description: Ground truth about your Rails app, for coding agents. A read-only MCP server for schema and routes, plus a Rails 8 agent skill.
+url: https://afurm.github.io
+baseurl: /rails-agent-kit
+theme: just-the-docs
+color_scheme: light
+
+repository: afurm/rails-agent-kit
+
+aux_links:
+  GitHub: https://github.com/afurm/rails-agent-kit
+  RubyGems: https://rubygems.org/gems/rails-agent-kit
+aux_links_new_tab: true
+
+nav_external_links:
+  - title: Changelog
+    url: https://github.com/afurm/rails-agent-kit/blob/main/CHANGELOG.md
+  - title: Roadmap
+    url: https://github.com/afurm/rails-agent-kit/blob/main/ROADMAP.md
+  - title: Contributing
+    url: https://github.com/afurm/rails-agent-kit/blob/main/CONTRIBUTING.md
+
+search_enabled: true
+heading_anchors: true
+back_to_top: true
+back_to_top_text: Back to top
+
+gh_edit_link: true
+gh_edit_link_text: Edit this page on GitHub
+gh_edit_repository: https://github.com/afurm/rails-agent-kit
+gh_edit_branch: main
+gh_edit_source: docs
+gh_edit_view_mode: edit
+
+footer_content: 'rails-agent-kit is released under the <a href="https://github.com/afurm/rails-agent-kit/blob/main/LICENSE">MIT License</a>. Docs built with <a href="https://just-the-docs.com">Just the Docs</a>.'
+
+callouts:
+  note:
+    title: Note
+    color: blue
+  main:
+    title: On main, not yet released
+    color: yellow
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+
+sass:
+  quiet_deps: true
+  silence_deprecations: [import, global-builtin, color-functions, mixed-decls]

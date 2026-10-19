@@ -15,6 +15,10 @@ All notable changes to this project are documented here. The format follows
   names, for example `search: "email"`. By @afurm.
 - **Choose how much schema you get.** `rails_schema` `detail` is `overview` or `full`. By @afurm.
 
+- **A documentation site** at <https://afurm.github.io/rails-agent-kit/>: getting started, a page per tool with
+  example output, the CLI reference, the agent skill and compatibility. The gemspec links to it as
+  `documentation_uri`. By @afurm.
+
 ### Changed
 
 - **`rails_schema` with no arguments returns a compact overview** instead of the whole schema: each table's

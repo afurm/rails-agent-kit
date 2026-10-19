@@ -7,7 +7,7 @@
 <p>A read-only MCP server that gives Cursor, Claude Code, Codex and other MCP clients your app's real schema and
 routes, plus a Rails 8 skill that tells the agent to check them before it writes code.</p>
 
-[Install](#installation) · [Connect your agent](#connect-your-agent) · [Tools](#tools) · [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md)
+[Documentation](https://afurm.github.io/rails-agent-kit/) · [Install](#installation) · [Connect your agent](#connect-your-agent) · [Tools](#tools) · [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md)
 
 [![Gem Version](https://img.shields.io/gem/v/rails-agent-kit?color=CC342D&logo=rubygems&logoColor=white)](https://rubygems.org/gems/rails-agent-kit)
 [![Gem Downloads](https://img.shields.io/gem/dt/rails-agent-kit)](https://rubygems.org/gems/rails-agent-kit)
@@ -264,6 +264,9 @@ The bundled skill targets Rails 8 conventions. On Rails 7.x, the tools work the 
 (e.g. `params.expect` and Solid Queue defaults) won't apply.
 
 ## Documentation
+
+The full guide lives at **[afurm.github.io/rails-agent-kit](https://afurm.github.io/rails-agent-kit/)**: getting
+started, a page per tool with example output, the CLI reference, the agent skill and compatibility.
 
 [Connect your agent](#connect-your-agent) · [Tools](#tools) · [CLI reference](#cli-reference) ·
 [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md) · [Releasing](RELEASING.md) · [Security](SECURITY.md)
