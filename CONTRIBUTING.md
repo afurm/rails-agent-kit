@@ -15,11 +15,24 @@ By taking part you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## How changes get in
 
-1. **Fork** the repository and create a topic branch from `main` (e.g. `fix/schema-check-constraints`).
-2. Make your change **with tests**, and run the full suite (below).
-3. Open a **pull request** against `main` and fill in the template.
-4. CI must be green. The maintainer ([@afurm](https://github.com/afurm)) reviews every PR, and **only the
-   maintainer merges**. Expect feedback; small, focused PRs get merged fastest.
+`main` is protected by a repository ruleset. **Nobody pushes to `main` directly, maintainer included.** Every
+change goes through a pull request:
+
+1. **Branch.** Outside contributors **fork** the repository first. Create a topic branch from an up-to-date
+   `main`, named `<type>/<short-description>`, where type is one of `feat`, `fix`, `docs`, `chore`, `ci`,
+   `release` (e.g. `fix/schema-check-constraints`, `feat/init-command`). Use lowercase words separated by
+   hyphens.
+2. **Change.** Make your change **with tests**, and run the full suite (below).
+3. **Pull request.** Open a PR against `main` and fill in the template.
+4. **Checks.** These must pass: `Ruby 3.2`, `Ruby 3.3`, `Ruby 3.4` and `Ruby 4.0`. `ruby-head` runs but is
+   allowed to fail. The branch must be **up to date with `main`** before merging, so rebase if `main` has moved.
+   All review threads must be resolved.
+5. **Merge.** PRs are **squash-merged**, so the PR title becomes the commit subject on `main`. Write it like a
+   commit subject. The PR branch is deleted after merge. Pull requests from outside contributors are reviewed
+   and merged only by the maintainer ([@afurm](https://github.com/afurm)). Expect feedback; small, focused PRs
+   get merged fastest.
+
+The ruleset also blocks force-pushes and deletion of `main`, and nobody can bypass it.
 
 For anything larger than a bug fix (a new tool, a CLI command, or a change to tool output shape), please open an
 issue first so we can agree on the design before you write code.
@@ -77,7 +90,9 @@ CI runs the suite on Ruby 3.2, 3.3 and 3.4.
 
 - Write commit subjects in the imperative and under about 72 characters, e.g. "Parse check constraints in
   schema.rb". Add a body explaining *why* when it isn't obvious. Reference issues as `Fixes #123`.
-- Keep one logical change per PR. Rebase on `main` rather than merging `main` into your branch.
+- Keep one logical change per PR. Rebase on `main` rather than merging `main` into your branch. Force-pushing
+  your own PR branch after a rebase is fine. `main` itself can never be force-pushed.
+- The PR title becomes the squash commit on `main`, so make it imperative and under about 72 characters.
 - Add an entry under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for user-visible changes
   (Added / Changed / Deprecated / Removed / Fixed / Security).
 - The maintainer applies a label (`feature`, `fix`, `docs`, `internal`, `breaking-change`), which decides where
@@ -86,4 +101,5 @@ CI runs the suite on Ruby 3.2, 3.3 and 3.4.
 ## Releases
 
 Releases follow [Semantic Versioning](https://semver.org/). Before 1.0, minor versions may include breaking
-changes, and these are called out in the changelog. The maintainer cuts releases; see [RELEASING.md](RELEASING.md).
+changes, and these are called out in the changelog. The maintainer cuts releases through a release PR and a
+version tag that triggers automated publishing; see [RELEASING.md](RELEASING.md).
