@@ -37,6 +37,20 @@ The ruleset also blocks force-pushes and deletion of `main`, and nobody can bypa
 For anything larger than a bug fix (a new tool, a CLI command, or a change to tool output shape), please open an
 issue first so we can agree on the design before you write code.
 
+### Does it belong in rails-agent-kit?
+
+rails-agent-kit gives agents facts about a Rails app that they would otherwise guess. A good fit:
+
+- reads something the app already defines (schema, routes, models, config) and returns it compactly;
+- stays **read-only**, never touches the app's database, and avoids booting the app where a static read works;
+- helps most Rails apps, not one app's setup.
+
+Likely a no: tools that write files or run migrations, wrappers around services outside the app, and
+features that work for only one MCP client when a standard MCP feature would do.
+
+Use whatever tools you like to write your change. You're responsible for every line you submit, so make sure
+you understand it and can answer questions about it.
+
 ## Development setup
 
 You need Ruby 3.2 or newer and Bundler.
@@ -75,7 +89,7 @@ BUNDLE_GEMFILE=$PWD/Gemfile bundle exec exe/rails-agent-kit --root /path/to/a/ra
   change a tool.
 - `test/skills_test.rb` validates skill front-matter and checks that every MCP tool a skill mentions actually exists.
 
-CI runs the suite on Ruby 3.2, 3.3 and 3.4.
+CI runs the suite on Ruby 3.2, 3.3, 3.4 and 4.0, plus `ruby-head` (allowed to fail).
 
 ## Style
 
@@ -88,15 +102,19 @@ CI runs the suite on Ruby 3.2, 3.3 and 3.4.
 
 ## Commits and pull requests
 
-- Write commit subjects in the imperative and under about 72 characters, e.g. "Parse check constraints in
-  schema.rb". Add a body explaining *why* when it isn't obvious. Reference issues as `Fixes #123`.
+- **Titles say what changes for the user**, in the imperative, as a plain sentence under about 72 characters:
+  "Parse check constraints in structure.sql", "Return a compact schema overview by default". No `feat:` or
+  `Docs:` prefixes; the label carries the type. PRs are squash-merged, so the title becomes the commit subject
+  on `main`.
+- **Descriptions explain the problem and the fix.** Fill in the [template](.github/PULL_REQUEST_TEMPLATE.md):
+  what was wrong or missing, what the change does (with example tool output when the output changes), and how
+  you tested it. Reference issues as `Fixes #123`.
 - Keep one logical change per PR. Rebase on `main` rather than merging `main` into your branch. Force-pushing
   your own PR branch after a rebase is fine. `main` itself can never be force-pushed.
-- The PR title becomes the squash commit on `main`, so make it imperative and under about 72 characters.
-- Add an entry under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for user-visible changes
-  (Added / Changed / Deprecated / Removed / Fixed / Security).
-- The maintainer applies a label (`feature`, `fix`, `docs`, `internal`, `breaking-change`), which decides where
-  the PR appears in the auto-generated release notes.
+- Add an entry under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for user-visible changes, in the style
+  described in [RELEASING.md](RELEASING.md#writing-the-changelog): a bold outcome sentence, the details, then
+  `By @you. (#PR)`.
+- The maintainer applies a label (`feature`, `fix`, `docs`, `internal`, `breaking-change`).
 
 ## Releases
 

@@ -1,4 +1,6 @@
-# Categories for auto-generated GitHub release notes (gh release create --generate-notes).
+# Categories for GitHub's auto-generated release notes (gh release create --generate-notes, or the
+# "Generate release notes" button). Published notes come from CHANGELOG.md (script/release_notes.rb);
+# use the generated list as a checklist of merged PRs and contributors when writing the changelog.
 changelog:
   exclude:
     labels:
@@ -9,11 +11,11 @@ changelog:
   categories:
     - title: Breaking changes
       labels: [breaking-change]
-    - title: Features
+    - title: New
       labels: [feature, enhancement]
-    - title: Fixes
+    - title: Fixed
       labels: [fix, bug]
-    - title: Docs
+    - title: Documentation
       labels: [docs, documentation]
-    - title: Internal
+    - title: Maintenance
       labels: ["*"]

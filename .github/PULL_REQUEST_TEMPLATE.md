@@ -2,6 +2,14 @@
 
 <!-- One or two sentences: what this PR does. -->
 
+## Type of change
+
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation
+- [ ] Maintenance (CI, tooling, refactor)
+
 ## Changes
 
 <!-- The main changes, as a short bullet list. -->
@@ -26,3 +34,4 @@
 - [ ] `CHANGELOG.md` updated under `[Unreleased]` (if user-visible)
 - [ ] Docs updated (README, skills, CONTRIBUTING) if behaviour or output changed
 - [ ] No breaking change, or the breaking change is clearly described above and in the CHANGELOG
+- [ ] I understand every line of this change and can answer questions about it

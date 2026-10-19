@@ -2,35 +2,33 @@
 
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
-[Semantic Versioning](https://semver.org/).
+[Semantic Versioning](https://semver.org/). Each version's section becomes its GitHub release notes; see
+[RELEASING.md](RELEASING.md#writing-the-changelog) for the entry style.
 
 ## [Unreleased]
 
 ### Added
 
-- `rails_schema` takes `table` as an array or a comma-separated list, so related tables come back in one call.
-  Tables that don't exist are listed in `missing_tables`.
-- `rails_schema` `search`: a case-insensitive match on table and column names (for example `search: "email"`).
-- `rails_schema` `detail`: `overview` or `full`.
-- Release automation: pushing a `vX.Y.Z` tag runs CI, publishes the gem with RubyGems trusted publishing and
-  creates the GitHub release from the CHANGELOG (`.github/workflows/release.yml`, `script/release_notes.rb`).
-- Project docs: CONTRIBUTING, CODE_OF_CONDUCT (Contributor Covenant 2.1), SECURITY, RELEASING, ROADMAP,
-  issue and PR templates, CODEOWNERS, and release-note categories (`.github/release.yml`).
+- **Ask for several tables at once.** `rails_schema` takes `table` as an array or a comma-separated list, so
+  related tables come back in one call. Names that don't exist are listed in `missing_tables`. By @afurm.
+- **Find tables and columns by name.** `rails_schema` `search` is a case-insensitive match on table and column
+  names, for example `search: "email"`. By @afurm.
+- **Choose how much schema you get.** `rails_schema` `detail` is `overview` or `full`. By @afurm.
 
 ### Changed
 
-- CONTRIBUTING and RELEASING describe the pull-request-only workflow for `main` (required checks, squash
-  merges) and releases through a release PR and a version tag.
-- **`rails_schema` with no arguments now returns a compact overview** (each table's column count, non-default
-  primary key and foreign key targets) instead of the whole schema. Pass `detail: "full"` for the old output. On
-  a generated 300-table schema the default answer drops from about 1.2 MB to 23 KB.
-- `rails_schema` answers over 60 KB are replaced by the overview with `truncated: true` and a note on how to
-  narrow the request.
-- Tool responses are compact JSON instead of pretty-printed, which roughly halves their size.
-- The server instructions describe the overview, then `table:` / `search:` flow.
-- CI now also runs on Ruby 4.0, plus `ruby-head` (allowed to fail).
-- README rewritten: quickstarts for Cursor, Claude Code and Codex, a tools and CLI reference, how it works, and
-  a compatibility table.
+- **`rails_schema` with no arguments returns a compact overview** instead of the whole schema: each table's
+  column count, non-default primary key and foreign key targets. Pass `detail: "full"` for the previous output.
+  On a generated 300-table schema the default answer drops from about 1.2 MB to 23 KB. By @afurm.
+- **Large answers stay bounded.** A `rails_schema` answer over 60 KB is replaced by the overview with
+  `truncated: true` and a note on how to narrow the request. By @afurm.
+- **Smaller responses.** Tools return compact JSON instead of pretty-printed JSON, which roughly halves their
+  size, and the server instructions describe the overview, then `table:` / `search:` flow. By @afurm.
+- **Tested on Ruby 4.0.** CI runs Ruby 3.2, 3.3, 3.4 and 4.0, plus `ruby-head` (allowed to fail). By @afurm.
+- **Project docs and automated releases.** A rewritten README; CONTRIBUTING, CODE_OF_CONDUCT (Contributor
+  Covenant 2.1), SECURITY, RELEASING and ROADMAP; issue and PR templates. Pushing a `vX.Y.Z` tag publishes the
+  gem with RubyGems trusted publishing and creates the GitHub release, titled `rails-agent-kit X.Y.Z`, from
+  this changelog. By @afurm. (#1)
 
 ## [0.1.0] - 2026-10-17
 
