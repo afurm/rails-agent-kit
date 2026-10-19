@@ -1,26 +1,97 @@
-# rails-agent-kit
+<div align="center">
 
-**Give coding agents ground truth about your Rails app: its real schema and routes, over MCP, without booting the app for the schema.**
+<h1>rails-agent-kit</h1>
+
+<strong>Ground truth about your Rails app, for coding agents</strong>
+
+<p>A read-only MCP server that gives Cursor, Claude Code, Codex and other MCP clients your app's real schema and
+routes, plus a Rails 8 skill that tells the agent to check them before it writes code.</p>
+
+[Install](#installation) · [Connect your agent](#connect-your-agent) · [Tools](#tools) · [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md)
 
 [![Gem Version](https://img.shields.io/gem/v/rails-agent-kit?color=CC342D&logo=rubygems&logoColor=white)](https://rubygems.org/gems/rails-agent-kit)
+[![Gem Downloads](https://img.shields.io/gem/dt/rails-agent-kit)](https://rubygems.org/gems/rails-agent-kit)
 [![CI](https://github.com/afurm/rails-agent-kit/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/afurm/rails-agent-kit/actions/workflows/ci.yml)
-[![Ruby](https://img.shields.io/badge/ruby-3.2%20%7C%203.3%20%7C%203.4-CC342D?logo=ruby&logoColor=white)](#compatibility)
+[![Ruby](https://img.shields.io/badge/ruby-3.2%20%7C%203.3%20%7C%203.4%20%7C%204.0-CC342D?logo=ruby&logoColor=white)](#compatibility)
 [![License: MIT](https://img.shields.io/github/license/afurm/rails-agent-kit)](LICENSE)
 
-rails-agent-kit is a small [Model Context Protocol](https://modelcontextprotocol.io) server plus agent skills
-for Cursor, Claude Code, Codex and any other MCP client.
+</div>
 
-> **Status:** early (v0.1.0). The API may change before 1.0. [Feedback and issues welcome.](https://github.com/afurm/rails-agent-kit/issues)
+> [!NOTE]
+> rails-agent-kit is early (v0.1.0), and the API may change before 1.0. Using it? Tell us how it went in
+> [Discussions](https://github.com/afurm/rails-agent-kit/discussions) or [open an issue](https://github.com/afurm/rails-agent-kit/issues).
 
-## Why
+---
 
-Agents writing Rails code guess constantly. *Is it `user.full_name` or `user.name`? Is the column nullable?
-Is the helper `post_comments_path` or `comments_path`?* Every wrong guess means broken code and another review cycle.
+## Look it up instead of guessing
 
-rails-agent-kit lets the agent **look it up instead of guessing**. It reads your app's actual schema and routes,
-and ships a Rails 8 skill that tells the agent to check them before it edits code.
+Agents writing Rails code guess all the time. *Is it `user.full_name` or `user.name`? Is the column nullable? Is
+the helper `post_comments_path` or `comments_path`?* Each wrong guess is broken code and another review round.
+rails-agent-kit lets the agent ask your app.
 
-## Install
+* **Schema:** tables, columns, indexes and foreign keys from `db/schema.rb`, parsed statically. It never boots
+  the app or connects to a database. `db/structure.sql` gets a best-effort parse.
+* **Schema overview and search (on `main`, not yet released):** a compact overview by default, several tables
+  in one call, and a name search across tables and columns, so large schemas don't flood the agent's context.
+* **Routes:** every route with its name, verb, path, `controller#action` and source line, from your app's own
+  `bin/rails routes --expanded`. Engines and route concerns resolve exactly as Rails sees them.
+* **Routes without booting:** point it at a saved routes dump, or run the routes command in Docker.
+* **Rails 8 conventions skill:** an Agent Skill for Cursor and Claude Code, installed with
+  `rails-agent-kit install-skills`.
+* **Read-only and local:** a stdio server your client starts. It doesn't listen on a network port.
+
+## See what your agent sees
+
+The agent calls the tools itself. These are real answers for the small blog app in
+[`test/fixtures/blog_app`](test/fixtures/blog_app), pretty-printed (the server sends compact JSON).
+
+```js
+// rails_schema {}  (the overview, on main; trimmed)
+{
+  "source": "db/schema.rb",
+  "table_count": 4,
+  "tables": [
+    { "name": "comments", "columns": 6, "references": ["posts", "users"] },
+    { "name": "posts", "columns": 10, "references": ["users"] },
+    { "name": "posts_tags", "columns": 2, "primary_key": false },
+    { "name": "users", "columns": 7 }
+  ]
+}
+```
+
+```js
+// rails_schema { "search": "email" }  (on main; trimmed)
+{ "match_count": 1, "matches": [{ "table": "users", "columns": [{ "name": "email", "type": "string", "null": false }] }] }
+```
+
+```js
+// rails_schema { "table": "comments" }  (trimmed)
+{
+  "tables": [{
+    "name": "comments",
+    "columns": [
+      { "name": "post_id", "type": "bigint", "null": false },
+      { "name": "body", "type": "text", "null": false }
+    ],
+    "indexes": [{ "name": "index_comments_on_post_id", "columns": ["post_id"], "unique": false }]
+  }],
+  "foreign_keys": [{ "from_table": "comments", "to_table": "users", "column": "user_id", "on_delete": "cascade" }]
+}
+```
+
+```js
+// rails_routes { "filter": "comments" }  (trimmed)
+{
+  "total": 7,
+  "count": 2,
+  "routes": [
+    { "name": "post_comments", "verb": "POST", "path": "/posts/:post_id/comments(.:format)",
+      "controller_action": "comments#create", "source_location": "config/routes.rb:3" }
+  ]
+}
+```
+
+## Installation
 
 ```sh
 gem install rails-agent-kit
@@ -34,7 +105,7 @@ bundle add rails-agent-kit --group development
 
 Requires Ruby 3.2+.
 
-## Quickstart
+## Connect your agent
 
 Replace `/path/to/your/rails/app` with the absolute path to your app.
 
@@ -184,7 +255,7 @@ is safe. It never overwrites a skill you've edited unless you pass `--force`.
 
 | | Versions | Status |
 | --- | --- | --- |
-| Ruby | 3.2, 3.3, 3.4 | Tested in CI |
+| Ruby | 3.2, 3.3, 3.4, 4.0 | Tested in CI (`ruby-head` runs too, allowed to fail) |
 | Rails (`db/schema.rb` format) | 8.0 | Covered by test fixtures |
 | Rails | 7.2, 8.1 | Expected to work, but not yet covered by CI ([planned](ROADMAP.md)) |
 | MCP clients | Cursor, Claude Code, Codex, Claude Desktop, or any stdio MCP client | Configuration shown above |
@@ -192,17 +263,26 @@ is safe. It never overwrites a skill you've edited unless you pass `--force`.
 The bundled skill targets Rails 8 conventions. On Rails 7.x, the tools work the same, but some skill advice
 (e.g. `params.expect` and Solid Queue defaults) won't apply.
 
-## Roadmap
+## Documentation
 
-See [ROADMAP.md](ROADMAP.md) for what's planned next.
+[Connect your agent](#connect-your-agent) · [Tools](#tools) · [CLI reference](#cli-reference) ·
+[Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md) · [Releasing](RELEASING.md) · [Security](SECURITY.md)
+
+## Community
+
+* **Questions and ideas:** [GitHub Discussions](https://github.com/afurm/rails-agent-kit/discussions)
+* **Bugs:** [open an issue](https://github.com/afurm/rails-agent-kit/issues/new/choose) with your Ruby, Rails
+  and MCP client versions
+* **Vulnerabilities:** report them privately, as described in [SECURITY.md](SECURITY.md)
+
+Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Contributing
 
-Bug reports, ideas and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and the
-[Code of Conduct](CODE_OF_CONDUCT.md). To report a vulnerability, see [SECURITY.md](SECURITY.md).
+Pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), then:
 
 ```sh
-git clone https://github.com/afurm/rails-agent-kit && cd rails-agent-kit
+gh repo fork afurm/rails-agent-kit --clone && cd rails-agent-kit
 bundle install
 bundle exec rake test
 ```
