@@ -5,7 +5,7 @@ require "json"
 require "tmpdir"
 require "fileutils"
 
-# AND-110: the default rails_schema answer must stay small on big apps.
+# The default rails_schema answer must stay small on big apps.
 class SchemaOverviewTest < Minitest::Test
   include FixtureHelpers
 

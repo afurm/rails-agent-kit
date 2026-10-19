@@ -43,7 +43,7 @@ prompt are needed.
    - the GitHub release exists
 
    Optionally, edit the release to add a short **Highlights** section at the top.
-7. **Announce:** draft posts for the maintainer to publish.
+7. **Announce** the release.
 
 ## Trusted publisher configuration
 

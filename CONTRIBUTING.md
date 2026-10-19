@@ -20,8 +20,8 @@ change goes through a pull request:
 
 1. **Branch.** Outside contributors **fork** the repository first. Create a topic branch from an up-to-date
    `main`, named `<type>/<short-description>`, where type is one of `feat`, `fix`, `docs`, `chore`, `ci`,
-   `release` (e.g. `fix/schema-check-constraints`). Maintainer branches may add the tracker ID, as in
-   `feat/and-114-init-command`.
+   `release` (e.g. `fix/schema-check-constraints`, `feat/init-command`). Use lowercase words separated by
+   hyphens.
 2. **Change.** Make your change **with tests**, and run the full suite (below).
 3. **Pull request.** Open a PR against `main` and fill in the template.
 4. **Checks.** These must pass: `Ruby 3.2`, `Ruby 3.3`, `Ruby 3.4` and `Ruby 4.0`. `ruby-head` runs but is

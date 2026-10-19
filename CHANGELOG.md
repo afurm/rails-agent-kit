@@ -19,6 +19,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- CONTRIBUTING and RELEASING describe the pull-request-only workflow for `main` (required checks, squash
+  merges) and releases through a release PR and a version tag.
 - **`rails_schema` with no arguments now returns a compact overview** (each table's column count, non-default
   primary key and foreign key targets) instead of the whole schema. Pass `detail: "full"` for the old output. On
   a generated 300-table schema the default answer drops from about 1.2 MB to 23 KB.
