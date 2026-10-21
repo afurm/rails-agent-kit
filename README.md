@@ -36,6 +36,8 @@ rails-agent-kit lets the agent ask your app.
 * **Routes:** every route with its name, verb, path, `controller#action` and source line, from your app's own
   `bin/rails routes --expanded`. Engines and route concerns resolve exactly as Rails sees them.
 * **Routes without booting:** point it at a saved routes dump, or run the routes command in Docker.
+* **One-command setup (on `main`, not yet released):** `rails-agent-kit init` connects Cursor, Claude Code, VS Code
+  and Codex, and installs the skill.
 * **Rails 8 conventions skill:** an Agent Skill for Cursor and Claude Code, installed with
   `rails-agent-kit install-skills`.
 * **Read-only and local:** a stdio server your client starts. It doesn't listen on a network port.
@@ -106,6 +108,23 @@ bundle add rails-agent-kit --group development
 Requires Ruby 3.2+.
 
 ## Connect your agent
+
+### One command (on `main`, not yet released)
+
+From your app's root:
+
+```sh
+bundle add rails-agent-kit --group development
+bundle exec rails-agent-kit init
+```
+
+`init` writes the MCP config for Cursor (`.cursor/mcp.json`), Claude Code (`.mcp.json`) and VS Code
+(`.vscode/mcp.json`), using project-relative paths so you can commit the files for your whole team. It adds
+rails-agent-kit next to the servers you already have, picks `bundle exec` or the installed gem for you, installs the
+Rails 8 skill for Cursor and Claude Code, and prints the snippet for Codex's global `~/.codex/config.toml`.
+Running it again changes nothing. Preview with `--dry-run`, or pick clients with `--agent cursor,claude`.
+
+### By hand
 
 Replace `/path/to/your/rails/app` with the absolute path to your app.
 
@@ -210,6 +229,7 @@ request (`truncated: true`).
 
 ```text
 rails-agent-kit [--root PATH] [--routes-file FILE]       # start the MCP server on stdio
+rails-agent-kit init [--root PATH] [--agent LIST] [--dry-run] [--force] [--no-skills]
 rails-agent-kit install-skills [--root PATH] [--agent cursor|claude] [--force] [SKILL...]
 rails-agent-kit --version
 ```

@@ -26,6 +26,20 @@ example below, replace `/path/to/your/rails/app` with the absolute path to your 
 
 ## Connect your agent
 
+### One command
+
+On `main`, not yet released. From your app's root:
+
+```sh
+bundle add rails-agent-kit --group development
+bundle exec rails-agent-kit init
+```
+
+`init` writes `.cursor/mcp.json`, `.mcp.json` (Claude Code) and `.vscode/mcp.json` with project-relative paths,
+keeps any servers you already have, installs the Rails 8 skill for Cursor and Claude Code, and prints the
+snippet for Codex's `~/.codex/config.toml`. See [`init`](cli#init) for the options. To set up a client by hand,
+use the sections below.
+
 ### Cursor
 
 `.cursor/mcp.json` in your app (or `~/.cursor/mcp.json`):

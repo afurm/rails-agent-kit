@@ -7,6 +7,7 @@ require_relative "rails_agent_kit/schema_inspector"
 require_relative "rails_agent_kit/routes_parser"
 require_relative "rails_agent_kit/routes_inspector"
 require_relative "rails_agent_kit/skill_installer"
+require_relative "rails_agent_kit/client_config"
 
 # Gives coding agents ground truth about a Rails app (schema, routes) over MCP.
 module RailsAgentKit

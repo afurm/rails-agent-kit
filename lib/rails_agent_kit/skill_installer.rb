@@ -29,17 +29,26 @@ module RailsAgentKit
     # untouched unless force: true. Returns one Result per skill with status :created, :updated,
     # :unchanged or :skipped.
     def install(skills = self.class.available_skills)
-      skills.map do |name|
-        source = File.join(SKILLS_DIR, name, "SKILL.md")
-        raise Error, "unknown skill #{name.inspect} (available: #{self.class.available_skills.join(', ')})" unless File.file?(source)
+      each_skill(skills) { |name, source| install_one(name, source) }
+    end
 
-        install_one(name, source)
-      end
+    # Same statuses as #install, without writing anything.
+    def plan(skills = self.class.available_skills)
+      each_skill(skills) { |name, source| install_one(name, source, write: false) }
     end
 
     private
 
-    def install_one(name, source)
+    def each_skill(skills)
+      skills.map do |name|
+        source = File.join(SKILLS_DIR, name, "SKILL.md")
+        raise Error, "unknown skill #{name.inspect} (available: #{self.class.available_skills.join(', ')})" unless File.file?(source)
+
+        yield name, source
+      end
+    end
+
+    def install_one(name, source, write: true)
       dest = File.join(@root, TARGETS.fetch(@agent), name, "SKILL.md")
       content = File.read(source)
       status =
@@ -49,7 +58,7 @@ module RailsAgentKit
         else :skipped
         end
 
-      if %i[created updated].include?(status)
+      if write && %i[created updated].include?(status)
         FileUtils.mkdir_p(File.dirname(dest))
         File.write(dest, content)
       end
