@@ -54,10 +54,36 @@ route concerns resolve exactly as Rails sees them.
 
 ## How it runs
 
-The tool runs `bin/rails routes --expanded` in `--root`, using the Ruby that runs rails-agent-kit, with Bundler's
-environment cleared so the app loads its own Gemfile. If your app needs a different Ruby, use
-`RAILS_AGENT_KIT_ROUTES_COMMAND` or a saved dump (below). The command times out after 60 seconds by default
-(`RAILS_AGENT_KIT_ROUTES_TIMEOUT`).
+The tool runs `bin/rails routes --expanded` in `--root` with Bundler's environment cleared, so the app loads its
+own Gemfile. The command times out after 60 seconds by default (`RAILS_AGENT_KIT_ROUTES_TIMEOUT`).
+
+### The app's Ruby
+
+On `main`, not yet released. The tool runs the app's own Ruby. It reads the version the app pins from the first
+of `.ruby-version`, `.tool-versions`, `mise.toml` (or `.mise.toml`) and the Gemfile `ruby` directive, looking
+in `--root` and then its parent directories, as rbenv and mise do.
+
+- If the Ruby running rails-agent-kit matches, it's used.
+- Otherwise the tool looks for a matching install of mise, rbenv (`RBENV_ROOT`), asdf (`ASDF_DATA_DIR`) or
+  chruby (`~/.rubies`, `/opt/rubies`) and runs that Ruby directly. This also works when your editor starts the
+  server without your shell profile, so version-manager shims aren't on `PATH`.
+- If the pinned Ruby isn't installed, the answer says so, for example *"The app wants Ruby 3.3.5 (from
+  .ruby-version), but it isn't installed. Install it with `rbenv install 3.3.5`"*, instead of a boot error.
+
+The Ruby that was used is in the answer:
+
+```js
+{
+  "source": "/home/me/.rbenv/versions/3.3.5/bin/ruby bin/rails routes --expanded",
+  "total": 7,
+  "count": 7,
+  "ruby": { "version": "3.3.5", "required": "3.3.5", "source": ".ruby-version", "manager": "rbenv",
+            "command": "/home/me/.rbenv/versions/3.3.5/bin/ruby" },
+  "routes": [ ... ]
+}
+```
+
+`RAILS_AGENT_KIT_ROUTES_COMMAND` overrides all of this.
 
 A relative `--routes-file` path is resolved against `--root`.
 

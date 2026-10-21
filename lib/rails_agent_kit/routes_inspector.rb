@@ -13,14 +13,17 @@ module RailsAgentKit
   # not possible (no bin/rails, boot error, timeout) it degrades gracefully:
   # it says why and returns the raw config/routes.rb so the agent can still read it.
   # A pre-generated routes dump can be supplied with `routes_file:` to skip booting.
+  # The command runs with the app's own Ruby (see RubyEnv), which is reported as `ruby` in the result.
   class RoutesInspector
     DEFAULT_TIMEOUT = 60
 
-    def initialize(root, routes_file: nil, timeout: nil, command: nil)
+    def initialize(root, routes_file: nil, timeout: nil, command: nil, ruby_env: nil)
       @root = File.expand_path(root)
       @routes_file = routes_file && File.expand_path(routes_file, @root)
       @timeout = (timeout || ENV.fetch("RAILS_AGENT_KIT_ROUTES_TIMEOUT", DEFAULT_TIMEOUT)).to_f
       @command = command
+      @ruby_env = ruby_env
+      @ruby = nil
     end
 
     def call(filter: nil)
@@ -32,7 +35,9 @@ module RailsAgentKit
       end
 
       matched = apply_filter(routes, filter)
-      { source: source, total: routes.size, count: matched.size, routes: matched }
+      result = { source: source, total: routes.size, count: matched.size }
+      result[:ruby] = @ruby.to_h if @ruby
+      result.merge(routes: matched)
     rescue RoutesUnavailable => e
       fallback(e.message)
     end
@@ -59,12 +64,15 @@ module RailsAgentKit
       bin_rails = File.join(@root, "bin", "rails")
       raise RoutesUnavailable, "No bin/rails found in #{@root}; cannot boot the app to list routes." unless File.file?(bin_rails)
 
-      [RbConfig.ruby, "bin/rails", "routes", "--expanded"]
+      @ruby = @ruby_env || RubyEnv.detect(@root)
+      raise RoutesUnavailable, RubyEnv.missing_message(@ruby) unless @ruby.found
+
+      [*@ruby.command_prefix, "bin/rails", "routes", "--expanded"]
     end
 
     def run(cmd)
       with_app_env do
-        Open3.popen3(*cmd, chdir: @root, pgroup: true) do |stdin, stdout, stderr, wait|
+        Open3.popen3(ruby_env_vars, *cmd, chdir: @root, pgroup: true) do |stdin, stdout, stderr, wait|
           stdin.close
           out_reader = reader(stdout)
           err_reader = reader(stderr)
@@ -82,6 +90,16 @@ module RailsAgentKit
       end
     rescue SystemCallError => e
       raise RoutesUnavailable, "Could not run `#{cmd.join(' ')}`: #{e.message}"
+    end
+
+    # When the app uses a different Ruby than this server, put its bin first on PATH and drop the gem paths of
+    # the server's Ruby so the app's Ruby uses its own gems.
+    def ruby_env_vars
+      return {} if @ruby.nil? || @ruby.manager.nil?
+
+      bin = File.dirname(@ruby.ruby)
+      { "PATH" => [bin, ENV.fetch("PATH", nil)].compact.join(File::PATH_SEPARATOR),
+        "GEM_HOME" => nil, "GEM_PATH" => nil, "RUBYOPT" => nil, "RUBYLIB" => nil }
     end
 
     # Run the app with its own Gemfile, not this gem's bundle.

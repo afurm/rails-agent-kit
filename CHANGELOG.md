@@ -9,6 +9,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **`rails_routes` boots the app with the app's own Ruby.** It reads the pinned version from `.ruby-version`,
+  `.tool-versions`, `mise.toml` or the Gemfile `ruby` directive and runs the matching mise, rbenv, asdf or chruby
+  install directly, so it works even when the editor starts the server without your shell profile. The answer
+  reports the Ruby it used as `ruby`. If the pinned Ruby isn't installed, it says which version to install instead
+  of returning a boot error. `RAILS_AGENT_KIT_ROUTES_COMMAND` still overrides everything. By @afurm.
 - **Connect every agent with one command.** `rails-agent-kit init` writes `.cursor/mcp.json`, `.mcp.json` (Claude
   Code) and `.vscode/mcp.json` with project-relative paths, merges into existing files without touching other
   servers, chooses `bundle exec` when the app's Gemfile has the gem, installs the bundled skills for Cursor and
