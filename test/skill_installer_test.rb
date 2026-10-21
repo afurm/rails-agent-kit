@@ -75,3 +75,12 @@ class InstallSkillsCliTest < Minitest::Test
     end
   end
 end
+
+class SkillInstallerPlanTest < Minitest::Test
+  def test_plan_reports_statuses_without_writing
+    Dir.mktmpdir do |root|
+      assert_equal [:created], RailsAgentKit::SkillInstaller.new(root).plan.map(&:status)
+      assert_empty Dir.children(root)
+    end
+  end
+end

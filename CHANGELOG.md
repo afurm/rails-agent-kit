@@ -9,6 +9,11 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Connect every agent with one command.** `rails-agent-kit init` writes `.cursor/mcp.json`, `.mcp.json` (Claude
+  Code) and `.vscode/mcp.json` with project-relative paths, merges into existing files without touching other
+  servers, chooses `bundle exec` when the app's Gemfile has the gem, installs the bundled skills for Cursor and
+  Claude Code, and prints the `~/.codex/config.toml` snippet for Codex. It's idempotent; `--dry-run` previews,
+  `--agent` picks clients and `--force` replaces an edited entry. By @afurm.
 - **Ask for several tables at once.** `rails_schema` takes `table` as an array or a comma-separated list, so
   related tables come back in one call. Names that don't exist are listed in `missing_tables`. By @afurm.
 - **Find tables and columns by name.** `rails_schema` `search` is a case-insensitive match on table and column

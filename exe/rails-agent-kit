@@ -4,6 +4,82 @@
 require "optparse"
 require_relative "../lib/rails_agent_kit"
 
+if ARGV.first == "init"
+  ARGV.shift
+  opts = { root: Dir.pwd, agent: "all", force: false, dry_run: false, skills: true }
+  init_parser = OptionParser.new do |o|
+    o.banner = "Usage: rails-agent-kit init [--root PATH] [--agent LIST] [--dry-run] [--force] [--no-skills]\n\n" \
+               "Writes the MCP config that starts rails-agent-kit for each agent and installs the bundled skills."
+    o.on("--root PATH", "Rails app root (default: current directory)") { |v| opts[:root] = v }
+    o.on("--agent LIST", "Comma-separated: cursor, claude, vscode, codex, or all (default: all)") { |v| opts[:agent] = v }
+    o.on("--dry-run", "Show what would change without writing anything") { opts[:dry_run] = true }
+    o.on("--force", "Replace a rails-agent-kit entry or skill you have edited") { opts[:force] = true }
+    o.on("--no-skills", "Only write the MCP config") { opts[:skills] = false }
+    o.on("-h", "--help", "Show this help") do
+      puts o
+      exit
+    end
+  end
+
+  begin
+    init_parser.parse!(ARGV)
+    raise RailsAgentKit::Error, "unexpected argument #{ARGV.first.inspect}" unless ARGV.empty?
+
+    agents = RailsAgentKit::ClientConfig.parse_agents(opts[:agent])
+    root = File.expand_path(opts[:root])
+    raise RailsAgentKit::Error, "--root #{root} is not a directory" unless File.directory?(root)
+  rescue OptionParser::ParseError, RailsAgentKit::Error => e
+    warn "rails-agent-kit: #{e.message}"
+    exit 64
+  end
+
+  config = RailsAgentKit::ClientConfig.new(root, force: opts[:force], dry_run: opts[:dry_run])
+  relative = ->(path) { path.start_with?("#{root}/") ? path.delete_prefix("#{root}/") : path }
+  planned = { created: "would create", added: "would add", updated: "would update" }
+  label = ->(status) { ((opts[:dry_run] && planned[status]) || status.to_s).ljust(12) }
+
+  puts "rails-agent-kit init#{' (dry run, nothing written)' if opts[:dry_run]}"
+  puts "Command: #{config.bundled? ? 'bundle exec rails-agent-kit (found in the Gemfile)' : 'rails-agent-kit (installed gem)'}"
+  puts
+
+  results = config.write(agents)
+  results.reject { |r| r.status == :print }.each do |r|
+    note =
+      case r.status
+      when :skipped then " (has a different rails-agent-kit entry; use --force to replace it)"
+      when :error then " (#{r.message})"
+      else ""
+      end
+    puts "#{label.call(r.status)} #{relative.call(r.path)}#{note}"
+  end
+
+  if opts[:skills]
+    (agents & RailsAgentKit::SkillInstaller::TARGETS.keys).each do |agent|
+      installer = RailsAgentKit::SkillInstaller.new(root, agent: agent, force: opts[:force])
+      skill_results = opts[:dry_run] ? installer.plan : installer.install
+      skill_results.each do |r|
+        note = r.status == :skipped ? " (differs from bundled copy; use --force to overwrite)" : ""
+        puts "#{label.call(r.status)} #{relative.call(r.path)}#{note}"
+      end
+    end
+  end
+
+  if (codex = results.find { |r| r.status == :print })
+    puts
+    puts "Codex reads MCP servers from the global ~/.codex/config.toml, so add this yourself:"
+    puts
+    puts codex.snippet
+  end
+
+  puts
+  if results.any? { |r| r.status == :error }
+    warn "rails-agent-kit: some files could not be updated; see above"
+    exit 65
+  end
+  puts "Done. Restart your agent (or reload its MCP servers) to pick up rails-agent-kit." unless opts[:dry_run]
+  exit 0
+end
+
 if ARGV.first == "install-skills"
   ARGV.shift
   opts = { root: Dir.pwd, agent: "cursor", force: false }
@@ -37,6 +113,7 @@ end
 options = { root: Dir.pwd, routes_file: nil }
 parser = OptionParser.new do |o|
   o.banner = "Usage: rails-agent-kit [--root PATH] [--routes-file FILE]\n" \
+             "       rails-agent-kit init --help\n" \
              "       rails-agent-kit install-skills --help\n\n" \
              "Starts an MCP server on stdio exposing the Rails app's schema and routes."
   o.on("--root PATH", "Rails app root (default: current directory)") { |v| options[:root] = v }
