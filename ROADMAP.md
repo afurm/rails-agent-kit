@@ -6,12 +6,8 @@ something matters to you.
 
 ## Next
 
-- **`rails-agent-kit init`:** one command that writes MCP config for Cursor, Claude Code, VS Code and Codex,
-  and installs skills.
-- **Routes with the app's Ruby:** detect rbenv, asdf, mise or bundler, so `rails_routes` boots with the right Ruby.
 - **Parser robustness:** test against real-world schemas and routes (`rails new` on 7.2–8.1, and large open-source apps).
 - **Multi-database apps:** the Solid Queue/Cache/Cable schemas and extra databases from `database.yml`.
-- **AGENTS.md output:** for Codex and other agents that read it, plus GitHub Copilot and Gemini CLI instruction files.
 
 ## Later
 

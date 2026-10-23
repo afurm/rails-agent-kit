@@ -59,7 +59,7 @@ own Gemfile. The command times out after 60 seconds by default (`RAILS_AGENT_KIT
 
 ### The app's Ruby
 
-On `main`, not yet released. The tool runs the app's own Ruby. It reads the version the app pins from the first
+The tool runs the app's own Ruby. It reads the version the app pins from the first
 of `.ruby-version`, `.tool-versions`, `mise.toml` (or `.mise.toml`) and the Gemfile `ruby` directive, looking
 in `--root` and then its parent directories, as rbenv and mise do.
 

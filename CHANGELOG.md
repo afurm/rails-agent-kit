@@ -7,47 +7,63 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-23
+
+rails-agent-kit 0.2.0 keeps large schemas out of your agent's context and makes setup one command:
+`rails_schema` starts with a compact overview and can search and fetch several tables at once,
+`rails-agent-kit init` connects Cursor, Claude Code, VS Code and Codex, the Rails 8 skill now reaches every agent
+that reads `AGENTS.md`, and `rails_routes` boots your app with the Ruby it pins.
+
+### Upgrading
+
+`rails_schema` with no arguments now returns a compact overview instead of the whole schema. Pass
+`detail: "full"` for the previous output, or `table:` for the tables you need. If you configured clients by hand,
+you can keep that config; `rails-agent-kit init` only adds what's missing.
+
 ### Added
 
-- **`rails_routes` boots the app with the app's own Ruby.** It reads the pinned version from `.ruby-version`,
-  `.tool-versions`, `mise.toml` or the Gemfile `ruby` directive and runs the matching mise, rbenv, asdf or chruby
-  install directly, so it works even when the editor starts the server without your shell profile. The answer
-  reports the Ruby it used as `ruby`. If the pinned Ruby isn't installed, it says which version to install instead
-  of returning a boot error. `RAILS_AGENT_KIT_ROUTES_COMMAND` still overrides everything. By @afurm.
+- **Connect every agent with one command.** `rails-agent-kit init` writes `.cursor/mcp.json`, `.mcp.json` (Claude
+  Code) and `.vscode/mcp.json` with project-relative paths, merges into existing files without touching other
+  servers, chooses `bundle exec` when the app's Gemfile has the gem, installs the bundled skills, and prints the
+  `~/.codex/config.toml` snippet for Codex. It's idempotent; `--dry-run` previews, `--agent` picks clients and
+  `--force` replaces an edited entry. By @afurm. (#5)
 - **Give Codex, Copilot and Gemini CLI the Rails 8 skill.** `install-skills --agent codex` adds the skill to
   `AGENTS.md`, which Codex, Cursor, GitHub Copilot, Windsurf, Zed and others read; `--agent copilot` writes
   `.github/copilot-instructions.md` and `--agent gemini` writes `GEMINI.md`. The text sits between
   `<!-- rails-agent-kit:start -->` and `<!-- rails-agent-kit:end -->` markers, so the rest of your file is never
-  touched and re-running updates only that block. `init` now does this for Codex too. By @afurm.
-- **Connect every agent with one command.** `rails-agent-kit init` writes `.cursor/mcp.json`, `.mcp.json` (Claude
-  Code) and `.vscode/mcp.json` with project-relative paths, merges into existing files without touching other
-  servers, chooses `bundle exec` when the app's Gemfile has the gem, installs the bundled skills for Cursor and
-  Claude Code, and prints the `~/.codex/config.toml` snippet for Codex. It's idempotent; `--dry-run` previews,
-  `--agent` picks clients and `--force` replaces an edited entry. By @afurm.
+  touched and re-running updates only that block. `init` does this for Codex. By @afurm. (#7)
+- **`rails_routes` boots the app with the app's own Ruby.** It reads the pinned version from `.ruby-version`,
+  `.tool-versions`, `mise.toml` or the Gemfile `ruby` directive and runs the matching mise, rbenv, asdf or chruby
+  install directly, so it works even when the editor starts the server without your shell profile. The answer
+  reports the Ruby it used as `ruby`. If the pinned Ruby isn't installed, it says which version to install instead
+  of returning a boot error. `RAILS_AGENT_KIT_ROUTES_COMMAND` still overrides everything. By @afurm. (#6)
 - **Ask for several tables at once.** `rails_schema` takes `table` as an array or a comma-separated list, so
   related tables come back in one call. Names that don't exist are listed in `missing_tables`. By @afurm.
 - **Find tables and columns by name.** `rails_schema` `search` is a case-insensitive match on table and column
   names, for example `search: "email"`. By @afurm.
 - **Choose how much schema you get.** `rails_schema` `detail` is `overview` or `full`. By @afurm.
-
 - **A documentation site** at <https://afurm.github.io/rails-agent-kit/>: getting started, a page per tool with
-  example output, the CLI reference, the agent skill and compatibility. The gemspec links to it as
-  `documentation_uri`. By @afurm.
+  example output, the CLI reference, supported agents, the agent skill and compatibility. The gemspec links to it
+  as `documentation_uri`. By @afurm. (#3)
 
 ### Changed
 
 - **`rails_schema` with no arguments returns a compact overview** instead of the whole schema: each table's
-  column count, non-default primary key and foreign key targets. Pass `detail: "full"` for the previous output.
-  On a generated 300-table schema the default answer drops from about 1.2 MB to 23 KB. By @afurm.
+  column count, non-default primary key and foreign key targets. On a generated 300-table schema the default
+  answer drops from about 1.2 MB to 23 KB. By @afurm.
 - **Large answers stay bounded.** A `rails_schema` answer over 60 KB is replaced by the overview with
   `truncated: true` and a note on how to narrow the request. By @afurm.
 - **Smaller responses.** Tools return compact JSON instead of pretty-printed JSON, which roughly halves their
   size, and the server instructions describe the overview, then `table:` / `search:` flow. By @afurm.
 - **Tested on Ruby 4.0.** CI runs Ruby 3.2, 3.3, 3.4 and 4.0, plus `ruby-head` (allowed to fail). By @afurm.
 - **Project docs and automated releases.** A rewritten README; CONTRIBUTING, CODE_OF_CONDUCT (Contributor
-  Covenant 2.1), SECURITY, RELEASING and ROADMAP; issue and PR templates. Pushing a `vX.Y.Z` tag publishes the
-  gem with RubyGems trusted publishing and creates the GitHub release, titled `rails-agent-kit X.Y.Z`, from
-  this changelog. By @afurm. (#1)
+  Covenant 2.1), SECURITY, RELEASING and ROADMAP; issue and PR templates. Releases are published from a tag with
+  RubyGems trusted publishing. By @afurm. (#1)
+
+### Known limitations
+
+- `db/structure.sql` parsing is best effort: foreign keys and constraints aren't extracted yet.
+- Multi-database apps: only the primary database's schema is read.
 
 ## [0.1.0] - 2026-10-17
 
@@ -63,5 +79,6 @@ All notable changes to this project are documented here. The format follows
 - `rails-agent-kit install-skills [--agent cursor|claude] [--force]`, which installs the bundled skills into an app.
 - CI on Ruby 3.2, 3.3 and 3.4.
 
-[Unreleased]: https://github.com/afurm/rails-agent-kit/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/afurm/rails-agent-kit/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/afurm/rails-agent-kit/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/afurm/rails-agent-kit/releases/tag/v0.1.0

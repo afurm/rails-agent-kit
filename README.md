@@ -18,7 +18,7 @@ routes, plus a Rails 8 skill that tells the agent to check them before it writes
 </div>
 
 > [!NOTE]
-> rails-agent-kit is early (v0.1.0), and the API may change before 1.0. Using it? Tell us how it went in
+> rails-agent-kit is early (v0.2.0), and the API may change before 1.0. Using it? Tell us how it went in
 > [Discussions](https://github.com/afurm/rails-agent-kit/discussions) or [open an issue](https://github.com/afurm/rails-agent-kit/issues).
 
 ---
@@ -31,14 +31,14 @@ rails-agent-kit lets the agent ask your app.
 
 * **Schema:** tables, columns, indexes and foreign keys from `db/schema.rb`, parsed statically. It never boots
   the app or connects to a database. `db/structure.sql` gets a best-effort parse.
-* **Schema overview and search (on `main`, not yet released):** a compact overview by default, several tables
+* **Schema overview and search:** a compact overview by default, several tables
   in one call, and a name search across tables and columns, so large schemas don't flood the agent's context.
 * **Routes:** every route with its name, verb, path, `controller#action` and source line, from your app's own
   `bin/rails routes --expanded`. Engines and route concerns resolve exactly as Rails sees them.
-* **The app's own Ruby (on `main`, not yet released):** routes boot with the Ruby your app pins in `.ruby-version`,
+* **The app's own Ruby:** routes boot with the Ruby your app pins in `.ruby-version`,
   `.tool-versions` or `mise.toml`, found through mise, rbenv, asdf or chruby.
 * **Routes without booting:** point it at a saved routes dump, or run the routes command in Docker.
-* **One-command setup (on `main`, not yet released):** `rails-agent-kit init` connects Cursor, Claude Code, VS Code
+* **One-command setup:** `rails-agent-kit init` connects Cursor, Claude Code, VS Code
   and Codex, and installs the skill.
 * **Rails 8 conventions skill:** an Agent Skill for Cursor and Claude Code, or a managed block in `AGENTS.md`
   (Codex and others), `.github/copilot-instructions.md` or `GEMINI.md`, installed with `rails-agent-kit install-skills`.
@@ -50,7 +50,7 @@ The agent calls the tools itself. These are real answers for the small blog app 
 [`test/fixtures/blog_app`](test/fixtures/blog_app), pretty-printed (the server sends compact JSON).
 
 ```js
-// rails_schema {}  (the overview, on main; trimmed)
+// rails_schema {}  (the overview; trimmed)
 {
   "source": "db/schema.rb",
   "table_count": 4,
@@ -64,7 +64,7 @@ The agent calls the tools itself. These are real answers for the small blog app 
 ```
 
 ```js
-// rails_schema { "search": "email" }  (on main; trimmed)
+// rails_schema { "search": "email" }  (trimmed)
 { "match_count": 1, "matches": [{ "table": "users", "columns": [{ "name": "email", "type": "string", "null": false }] }] }
 ```
 
@@ -111,7 +111,7 @@ Requires Ruby 3.2+.
 
 ## Connect your agent
 
-### One command (on `main`, not yet released)
+### One command
 
 From your app's root:
 

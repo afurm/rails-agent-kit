@@ -28,7 +28,7 @@ example below, replace `/path/to/your/rails/app` with the absolute path to your 
 
 ### One command
 
-On `main`, not yet released. From your app's root:
+From your app's root:
 
 ```sh
 bundle add rails-agent-kit --group development

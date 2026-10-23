@@ -23,9 +23,9 @@ All parameters are optional.
 | `search` | string | Case-insensitive substring matched against table and column names, e.g. `"email"` |
 | `detail` | `"overview"` or `"full"` | `overview` is the default with no `table` or `search`; `full` is the default with `table` |
 
-{: .main }
-The overview, `search`, `detail`, and several tables per call are on `main`. In the released 0.1.0, calling
-`rails_schema` with no arguments returns the full schema, and `table` takes a single table name.
+{: .note }
+Since 0.2.0, calling `rails_schema` with no arguments returns the overview. In 0.1.0 it returned the full schema;
+pass `detail: "full"` for that output.
 
 ## Overview (no arguments)
 
