@@ -25,7 +25,7 @@ Your MCP client starts the server. You don't run it by hand, except to check tha
 
 ## `init`
 
-On `main`, not yet released. Connects your agents to rails-agent-kit in one step:
+Connects your agents to rails-agent-kit in one step:
 
 | Agent | What `init` does |
 | --- | --- |
