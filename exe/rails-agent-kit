@@ -9,12 +9,13 @@ if ARGV.first == "init"
   opts = { root: Dir.pwd, agent: "all", force: false, dry_run: false, skills: true }
   init_parser = OptionParser.new do |o|
     o.banner = "Usage: rails-agent-kit init [--root PATH] [--agent LIST] [--dry-run] [--force] [--no-skills]\n\n" \
-               "Writes the MCP config that starts rails-agent-kit for each agent and installs the bundled skills."
+               "Writes the MCP config that starts rails-agent-kit for each agent and installs the bundled skills\n" \
+               "(skill files for Cursor and Claude Code, a managed AGENTS.md block for Codex)."
     o.on("--root PATH", "Rails app root (default: current directory)") { |v| opts[:root] = v }
     o.on("--agent LIST", "Comma-separated: cursor, claude, vscode, codex, or all (default: all)") { |v| opts[:agent] = v }
     o.on("--dry-run", "Show what would change without writing anything") { opts[:dry_run] = true }
     o.on("--force", "Replace a rails-agent-kit entry or skill you have edited") { opts[:force] = true }
-    o.on("--no-skills", "Only write the MCP config") { opts[:skills] = false }
+    o.on("--no-skills", "Only write the MCP config (no skills, no AGENTS.md block)") { opts[:skills] = false }
     o.on("-h", "--help", "Show this help") do
       puts o
       exit
@@ -53,13 +54,19 @@ if ARGV.first == "init"
     puts "#{label.call(r.status)} #{relative.call(r.path)}#{note}"
   end
 
+  skill_note = lambda do |r|
+    if r.message then " (#{r.message})"
+    elsif r.status == :skipped then " (differs from bundled copy; use --force to overwrite)"
+    else ""
+    end
+  end
+
   if opts[:skills]
     (agents & RailsAgentKit::SkillInstaller::TARGETS.keys).each do |agent|
       installer = RailsAgentKit::SkillInstaller.new(root, agent: agent, force: opts[:force])
       skill_results = opts[:dry_run] ? installer.plan : installer.install
       skill_results.each do |r|
-        note = r.status == :skipped ? " (differs from bundled copy; use --force to overwrite)" : ""
-        puts "#{label.call(r.status)} #{relative.call(r.path)}#{note}"
+        puts "#{label.call(r.status)} #{relative.call(r.path)}#{skill_note.call(r)}"
       end
     end
   end
@@ -84,10 +91,12 @@ if ARGV.first == "install-skills"
   ARGV.shift
   opts = { root: Dir.pwd, agent: "cursor", force: false }
   skills_parser = OptionParser.new do |o|
-    o.banner = "Usage: rails-agent-kit install-skills [--root PATH] [--agent cursor|claude] [--force] [SKILL...]\n\n" \
-               "Copies the bundled agent skills into the app (e.g. .cursor/skills/<name>/SKILL.md)."
+    o.banner = "Usage: rails-agent-kit install-skills [--root PATH] [--agent AGENT] [--force] [SKILL...]\n\n" \
+               "Installs the bundled agent skills into the app: as skill files for Cursor (.cursor/skills/) and\n" \
+               "Claude Code (.claude/skills/), or as a managed block in AGENTS.md (codex),\n" \
+               ".github/copilot-instructions.md (copilot) or GEMINI.md (gemini)."
     o.on("--root PATH", "Rails app root (default: current directory)") { |v| opts[:root] = v }
-    o.on("--agent AGENT", "cursor (default) or claude") { |v| opts[:agent] = v }
+    o.on("--agent AGENT", "cursor (default), claude, codex, copilot or gemini") { |v| opts[:agent] = v }
     o.on("--force", "Overwrite skills you have edited locally") { opts[:force] = true }
     o.on("-h", "--help", "Show this help") do
       puts o
@@ -104,7 +113,11 @@ if ARGV.first == "install-skills"
     exit 64
   end
   results.each do |r|
-    note = r.status == :skipped ? " (differs from bundled copy; use --force to overwrite)" : ""
+    note =
+      if r.message then " (#{r.message})"
+      elsif r.status == :skipped then " (differs from bundled copy; use --force to overwrite)"
+      else ""
+      end
     puts "#{r.status.to_s.ljust(9)} #{r.path}#{note}"
   end
   exit 0

@@ -14,6 +14,11 @@ All notable changes to this project are documented here. The format follows
   install directly, so it works even when the editor starts the server without your shell profile. The answer
   reports the Ruby it used as `ruby`. If the pinned Ruby isn't installed, it says which version to install instead
   of returning a boot error. `RAILS_AGENT_KIT_ROUTES_COMMAND` still overrides everything. By @afurm.
+- **Give Codex, Copilot and Gemini CLI the Rails 8 skill.** `install-skills --agent codex` adds the skill to
+  `AGENTS.md`, which Codex, Cursor, GitHub Copilot, Windsurf, Zed and others read; `--agent copilot` writes
+  `.github/copilot-instructions.md` and `--agent gemini` writes `GEMINI.md`. The text sits between
+  `<!-- rails-agent-kit:start -->` and `<!-- rails-agent-kit:end -->` markers, so the rest of your file is never
+  touched and re-running updates only that block. `init` now does this for Codex too. By @afurm.
 - **Connect every agent with one command.** `rails-agent-kit init` writes `.cursor/mcp.json`, `.mcp.json` (Claude
   Code) and `.vscode/mcp.json` with project-relative paths, merges into existing files without touching other
   servers, chooses `bundle exec` when the app's Gemfile has the gem, installs the bundled skills for Cursor and

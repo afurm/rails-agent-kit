@@ -26,9 +26,14 @@ Without the MCP server, the skill falls back to reading `db/schema.rb`, `config/
 ## Install
 
 ```sh
-rails-agent-kit install-skills --root /path/to/your/rails/app                 # .cursor/skills/
-rails-agent-kit install-skills --root /path/to/your/rails/app --agent claude  # .claude/skills/
+rails-agent-kit install-skills --root /path/to/your/rails/app                  # .cursor/skills/
+rails-agent-kit install-skills --root /path/to/your/rails/app --agent claude   # .claude/skills/
+rails-agent-kit install-skills --root /path/to/your/rails/app --agent codex    # AGENTS.md
+rails-agent-kit install-skills --root /path/to/your/rails/app --agent copilot  # .github/copilot-instructions.md
+rails-agent-kit install-skills --root /path/to/your/rails/app --agent gemini   # GEMINI.md
 ```
+
+[Supported agents](agents) lists which agent reads which file.
 
 See the [CLI reference](cli#install-skills) for options. On Rails 7.x the tools work the same, but some skill
 advice (such as `params.expect` and the Solid Queue defaults) won't apply.

@@ -40,8 +40,8 @@ rails-agent-kit lets the agent ask your app.
 * **Routes without booting:** point it at a saved routes dump, or run the routes command in Docker.
 * **One-command setup (on `main`, not yet released):** `rails-agent-kit init` connects Cursor, Claude Code, VS Code
   and Codex, and installs the skill.
-* **Rails 8 conventions skill:** an Agent Skill for Cursor and Claude Code, installed with
-  `rails-agent-kit install-skills`.
+* **Rails 8 conventions skill:** an Agent Skill for Cursor and Claude Code, or a managed block in `AGENTS.md`
+  (Codex and others), `.github/copilot-instructions.md` or `GEMINI.md`, installed with `rails-agent-kit install-skills`.
 * **Read-only and local:** a stdio server your client starts. It doesn't listen on a network port.
 
 ## See what your agent sees
@@ -123,7 +123,8 @@ bundle exec rails-agent-kit init
 `init` writes the MCP config for Cursor (`.cursor/mcp.json`), Claude Code (`.mcp.json`) and VS Code
 (`.vscode/mcp.json`), using project-relative paths so you can commit the files for your whole team. It adds
 rails-agent-kit next to the servers you already have, picks `bundle exec` or the installed gem for you, installs the
-Rails 8 skill for Cursor and Claude Code, and prints the snippet for Codex's global `~/.codex/config.toml`.
+Rails 8 skill for Cursor and Claude Code, adds it to `AGENTS.md` for Codex, and prints the snippet for Codex's
+global `~/.codex/config.toml`.
 Running it again changes nothing. Preview with `--dry-run`, or pick clients with `--agent cursor,claude`.
 
 ### By hand
@@ -206,11 +207,14 @@ claude mcp add rails-agent-kit -e BUNDLE_GEMFILE=/path/to/your/rails/app/Gemfile
 
 </details>
 
-To also add the Rails 8 conventions skill (optional; Cursor and Claude Code), see [Agent skill](#agent-skill-rails-8-conventions):
+To also add the Rails 8 conventions skill (optional), see [Agent skill](#agent-skill-rails-8-conventions):
 
 ```sh
-rails-agent-kit install-skills --root /path/to/your/rails/app                 # Cursor
-rails-agent-kit install-skills --root /path/to/your/rails/app --agent claude  # Claude Code
+rails-agent-kit install-skills --root /path/to/your/rails/app                  # Cursor
+rails-agent-kit install-skills --root /path/to/your/rails/app --agent claude   # Claude Code
+rails-agent-kit install-skills --root /path/to/your/rails/app --agent codex    # AGENTS.md
+rails-agent-kit install-skills --root /path/to/your/rails/app --agent copilot  # GitHub Copilot
+rails-agent-kit install-skills --root /path/to/your/rails/app --agent gemini   # Gemini CLI
 ```
 
 ## Tools
@@ -232,7 +236,7 @@ request (`truncated: true`).
 ```text
 rails-agent-kit [--root PATH] [--routes-file FILE]       # start the MCP server on stdio
 rails-agent-kit init [--root PATH] [--agent LIST] [--dry-run] [--force] [--no-skills]
-rails-agent-kit install-skills [--root PATH] [--agent cursor|claude] [--force] [SKILL...]
+rails-agent-kit install-skills [--root PATH] [--agent AGENT] [--force] [SKILL...]
 rails-agent-kit --version
 ```
 
@@ -271,8 +275,20 @@ built-in authentication generator, `rate_limit`, Solid Queue/Cache/Cable, Hotwir
 reversible migrations, and tests in the framework the app already uses. It also covers a paired Next.js
 frontend.
 
-`install-skills` copies it to `.cursor/skills/` (default) or `.claude/skills/` (`--agent claude`). Running it again
-is safe. It never overwrites a skill you've edited unless you pass `--force`.
+There's one source for every agent. `install-skills` installs it where each agent looks:
+
+| `--agent` | Writes | Read by |
+| --- | --- | --- |
+| `cursor` (default) | `.cursor/skills/<name>/SKILL.md` | Cursor |
+| `claude` | `.claude/skills/<name>/SKILL.md` | Claude Code (and Cursor, Copilot) |
+| `codex` | A managed block in `AGENTS.md` | Codex, Cursor, GitHub Copilot, Windsurf, Zed and other `AGENTS.md` readers |
+| `copilot` | A managed block in `.github/copilot-instructions.md` | GitHub Copilot |
+| `gemini` | A managed block in `GEMINI.md` | Gemini CLI |
+
+Running it again is safe. It never overwrites a skill file you've edited unless you pass `--force`. In
+`AGENTS.md`, `copilot-instructions.md` and `GEMINI.md` it only touches the text between
+`<!-- rails-agent-kit:start -->` and `<!-- rails-agent-kit:end -->`, appending the block if it isn't there yet,
+so the rest of your file stays yours.
 
 ## Compatibility
 

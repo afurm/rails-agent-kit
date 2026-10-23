@@ -146,13 +146,15 @@ class InitCliTest < Minitest::Test
       assert_match(%r{created\s+\.vscode/mcp\.json}, out)
       assert_match(%r{created\s+\.cursor/skills/rails-8-conventions/SKILL\.md}, out)
       assert_match(%r{created\s+\.claude/skills/rails-8-conventions/SKILL\.md}, out)
+      assert_match(/created\s+AGENTS\.md/, out)
+      assert_includes File.read(File.join(root, "AGENTS.md")), RailsAgentKit::SkillInstaller::MARKER_START
       assert_includes out, "[mcp_servers.rails-agent-kit]"
       assert File.file?(File.join(root, ".claude/skills/rails-8-conventions/SKILL.md"))
 
       out, err, status = run_cli("init", "--root", root)
       assert status.success?, err
       refute_match(/^(created|added|updated)/, out)
-      assert_equal 5, out.scan(/^unchanged/).size
+      assert_equal 6, out.scan(/^unchanged/).size
     end
   end
 

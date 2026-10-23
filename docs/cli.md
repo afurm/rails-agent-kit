@@ -8,7 +8,7 @@ nav_order: 4
 ```text
 rails-agent-kit [--root PATH] [--routes-file FILE]       # start the MCP server on stdio
 rails-agent-kit init [--root PATH] [--agent LIST] [--dry-run] [--force] [--no-skills]
-rails-agent-kit install-skills [--root PATH] [--agent cursor|claude] [--force] [SKILL...]
+rails-agent-kit install-skills [--root PATH] [--agent AGENT] [--force] [SKILL...]
 rails-agent-kit --version
 ```
 
@@ -32,7 +32,7 @@ On `main`, not yet released. Connects your agents to rails-agent-kit in one step
 | `cursor` | Writes `.cursor/mcp.json` (`mcpServers`, root `${workspaceFolder}`) and installs skills to `.cursor/skills/` |
 | `claude` | Writes `.mcp.json` (`mcpServers`, root `.`) and installs skills to `.claude/skills/` |
 | `vscode` | Writes `.vscode/mcp.json` (`servers`, root `${workspaceFolder}`) |
-| `codex` | Prints a `[mcp_servers.rails-agent-kit]` block for `~/.codex/config.toml`. It's a global file, so `init` doesn't edit it |
+| `codex` | Adds the skills to `AGENTS.md` (a managed block) and prints a `[mcp_servers.rails-agent-kit]` block for `~/.codex/config.toml`. That's a global file, so `init` doesn't edit it |
 
 If the app's `Gemfile` or `Gemfile.lock` includes rails-agent-kit, the config runs `bundle exec rails-agent-kit`
 (with `BUNDLE_GEMFILE` where the client supports `${workspaceFolder}`). Otherwise it runs the installed
@@ -48,19 +48,34 @@ you pass `--force`. A file that isn't valid JSON is left untouched, and `init` e
 | `--agent LIST` | Comma-separated `cursor`, `claude`, `vscode`, `codex`, or `all` (default). An unknown name exits with status 64 |
 | `--dry-run` | Show what would change without writing anything |
 | `--force` | Replace a rails-agent-kit entry or skill you've edited |
-| `--no-skills` | Only write the MCP config |
+| `--no-skills` | Only write the MCP config (no skills, no `AGENTS.md` block) |
 
 ## `install-skills`
 
-Copies the bundled skills into the app: `.cursor/skills/<name>/SKILL.md` by default, or
-`.claude/skills/<name>/SKILL.md` with `--agent claude`. With no `SKILL` arguments it installs all bundled
-skills (today, `rails-8-conventions`).
+Installs the bundled skills into the app. With no `SKILL` arguments it installs all bundled skills (today,
+`rails-8-conventions`).
+
+| `--agent` | Writes |
+| --- | --- |
+| `cursor` (default) | `.cursor/skills/<name>/SKILL.md` |
+| `claude` | `.claude/skills/<name>/SKILL.md` |
+| `codex` | A managed block in `AGENTS.md` |
+| `copilot` | A managed block in `.github/copilot-instructions.md` |
+| `gemini` | A managed block in `GEMINI.md` |
 
 | Option | Purpose |
 | --- | --- |
 | `--root PATH` | Rails app root (default: the current directory) |
-| `--agent AGENT` | `cursor` (default) or `claude` |
-| `--force` | Overwrite skills you've edited locally |
+| `--agent AGENT` | `cursor` (default), `claude`, `codex`, `copilot` or `gemini`. An unknown name exits with status 64 |
+| `--force` | Overwrite skill files you've edited locally |
 
-It's safe to run again. Each skill is reported as created, unchanged, updated, or skipped. A skill you've edited
-is skipped unless you pass `--force`.
+It's safe to run again. Each path is reported as created, added, unchanged, updated or skipped.
+
+- **Skill files** (`cursor`, `claude`) are copies of the bundled `SKILL.md`. A copy you've edited is skipped unless
+  you pass `--force`.
+- **Instruction files** (`codex`, `copilot`, `gemini`) get the skills' text, without front matter and with
+  headings one level deeper, between `<!-- rails-agent-kit:start -->` and `<!-- rails-agent-kit:end -->`. A file
+  without the block gets it appended (`added`), an outdated block is replaced (`updated`), and nothing outside the
+  markers changes. A file with a start marker but no end marker is skipped.
+
+See [Supported agents](agents) for which agents read which file.
