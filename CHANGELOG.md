@@ -7,6 +7,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-26
+
+rails-agent-kit 0.3.0 adds `rails_project_info`, one small call that tells your agent which stack the app uses,
+and makes `rails_schema` read real-world schemas: enums, constraints, composite keys, views and other schemas,
+with warnings instead of silent gaps. Both parsers are now tested against `rails new` apps on Rails 7.2, 8.0 and
+8.1 and the Mastodon and Forem schemas.
+
+### Upgrading
+
+No action needed. A few `rails_schema` answers change shape, which agents read without changes: virtual
+columns report their real `type` (with `virtual: true`) instead of `"virtual"`, tables dumped as `public.users`
+are named `users`, and check constraints are listed under `check_constraints` instead of as phantom columns.
+Run `rails-agent-kit install-skills` again to get the skill's "call `rails_project_info` first" step.
+
 ### Added
 
 - **`rails_project_info`, the first call of a session.** One answer of about 1 KB says what kind of Rails app
@@ -14,31 +28,30 @@ All notable changes to this project are documented here. The format follows
   framework and test data, auth and authorization, jobs, cache and cable backends, frontend, serializers, lint
   and deploy tools, mounted engines, notable gems and where tests, factories and policies live. It reads
   `Gemfile.lock` and config files without booting the app, and unknown values are `null`. The server
-  instructions and the Rails 8 skill tell the agent to call it first. By @afurm.
-
+  instructions and the Rails 8 skill tell the agent to call it first. By @afurm. (#10)
 - **`rails_schema` reads the rest of a real schema.** Postgres enums (`create_enum`, with each `t.enum` column's
   `enum_type` and `values`), check, exclusion and unique constraints, composite primary keys, `create_schema` and
   tables in other schemas, expression indexes, scenic views (with indexes on materialized views) and SQLite
-  full-text search tables. Virtual columns report their real type with `virtual`, `as` and `stored`. By @afurm.
+  full-text search tables. Virtual columns report their real type with `virtual`, `as` and `stored`. By @afurm. (#9)
 - **Warnings instead of silent gaps.** A line inside `create_table` the parser doesn't understand, or a top-level
   statement it skips (a trigger, an `execute`), is listed in `warnings` with its line number, in every
-  `rails_schema` answer. By @afurm.
+  `rails_schema` answer. By @afurm. (#9)
 - **Engine routes say where they're mounted.** Routes listed under an engine in `bin/rails routes --expanded`
-  carry `engine` and `mounted_at`, since their paths are relative to the mount point. By @afurm.
+  carry `engine` and `mounted_at`, since their paths are relative to the mount point. By @afurm. (#9)
 - **Tested against real apps.** A test corpus of `rails new` apps on Rails 7.2, 8.0 and 8.1 (SQLite and
   PostgreSQL, with Devise, Sidekiq::Web, Active Storage and a mounted engine) plus the Mastodon and Forem schemas.
-  Table, column and route counts must match what the booted app and PostgreSQL report. By @afurm.
+  Table, column and route counts must match what the booted app and PostgreSQL report. By @afurm. (#9)
 
 ### Fixed
 
 - **`t.check_constraint` is no longer read as a column** named after its expression, which added phantom columns
-  to tables with check constraints. By @afurm.
+  to tables with check constraints. By @afurm. (#9)
 - **Expression indexes are no longer dropped.** `t.index "lower(email)"` and `add_index` with an SQL expression
-  containing quotes were skipped; they're now listed with the expression. By @afurm.
+  containing quotes were skipped; they're now listed with the expression. By @afurm. (#9)
 - **Tables dumped as `public.users`** (apps with several schemas on the search path) are reported as `users`,
-  so `table: "users"` finds them; enums get the same treatment. By @afurm.
+  so `table: "users"` finds them; enums get the same treatment. By @afurm. (#9)
 - **Statements that span several lines** (long `create_table` options, multi-line defaults) and heredocs are
-  parsed as one statement, and escaped characters in string defaults (`\n`, `\"`) are unescaped. By @afurm.
+  parsed as one statement, and escaped characters in string defaults (`\n`, `\"`) are unescaped. By @afurm. (#9)
 
 ## [0.2.0] - 2026-10-23
 
@@ -112,6 +125,7 @@ you can keep that config; `rails-agent-kit init` only adds what's missing.
 - `rails-agent-kit install-skills [--agent cursor|claude] [--force]`, which installs the bundled skills into an app.
 - CI on Ruby 3.2, 3.3 and 3.4.
 
-[Unreleased]: https://github.com/afurm/rails-agent-kit/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/afurm/rails-agent-kit/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/afurm/rails-agent-kit/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/afurm/rails-agent-kit/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/afurm/rails-agent-kit/releases/tag/v0.1.0

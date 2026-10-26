@@ -64,5 +64,5 @@ A real answer for the small blog app in the test fixtures, pretty-printed and tr
 ```
 
 {: .note }
-rails-agent-kit is early (v0.2.0), and the API may change before 1.0. The
+rails-agent-kit is early (v0.3.0), and the API may change before 1.0. The
 [changelog](https://github.com/afurm/rails-agent-kit/blob/main/CHANGELOG.md) lists what changed in each release.
