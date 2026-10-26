@@ -14,11 +14,12 @@ module RailsAgentKit
         name: "rails-agent-kit",
         version: RailsAgentKit::VERSION,
         instructions: "Ground truth about the Rails app at #{context[:root]}. Check it before guessing model " \
-                      "attributes or URL helpers. rails_schema with no arguments lists every table (column counts " \
+                      "attributes, URL helpers or libraries. Call rails_project_info first: Rails and Ruby " \
+                      "versions, database, test framework, auth, jobs and frontend stack. rails_schema with no arguments lists every table (column counts " \
                       "and foreign key targets); then pass table: (one name or an array) for columns, indexes " \
                       "and foreign keys, or search: to find a column by name. rails_routes lists HTTP routes; " \
                       "pass filter: to narrow them.",
-        tools: [Tools::RailsSchema, Tools::RailsRoutes],
+        tools: [Tools::RailsProjectInfo, Tools::RailsSchema, Tools::RailsRoutes],
         server_context: context
       )
     end
@@ -38,6 +39,26 @@ module RailsAgentKit
 
       def json_response(data, error: false)
         MCP::Tool::Response.new([{ type: "text", text: JSON.generate(data) }], error: error)
+      end
+    end
+
+    class RailsProjectInfo < MCP::Tool
+      extend Helpers
+
+      tool_name "rails_project_info"
+      description "What kind of Rails app this is, read from Gemfile.lock and config files without booting it: " \
+                  "Rails, Ruby and load_defaults versions, api_only, database adapter and databases, test " \
+                  "framework and test data, auth and authorization, jobs, cache and cable backends, frontend " \
+                  "(importmap or bundler, assets, Hotwire, CSS, components), serializers, lint and deploy tools, " \
+                  "mounted engines, notable gems and where tests, factories, policies and components live. " \
+                  "Unknown values are null. Call it first."
+      input_schema(properties: {})
+      annotations(read_only_hint: true, destructive_hint: false, idempotent_hint: true, open_world_hint: false)
+
+      def self.call(server_context:)
+        root = context_value(server_context, :root) || Dir.pwd
+        result = ProjectInfo.new(root).call
+        json_response(result, error: result.key?(:error))
       end
     end
 

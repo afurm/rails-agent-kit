@@ -9,6 +9,13 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **`rails_project_info`, the first call of a session.** One answer of about 1 KB says what kind of Rails app
+  this is: Rails, Ruby and `load_defaults` versions, `api_only`, database adapter and multi-DB layout, test
+  framework and test data, auth and authorization, jobs, cache and cable backends, frontend, serializers, lint
+  and deploy tools, mounted engines, notable gems and where tests, factories and policies live. It reads
+  `Gemfile.lock` and config files without booting the app, and unknown values are `null`. The server
+  instructions and the Rails 8 skill tell the agent to call it first. By @afurm.
+
 - **`rails_schema` reads the rest of a real schema.** Postgres enums (`create_enum`, with each `t.enum` column's
   `enum_type` and `values`), check, exclusion and unique constraints, composite primary keys, `create_schema` and
   tables in other schemas, expression indexes, scenic views (with indexes on materialized views) and SQLite

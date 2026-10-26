@@ -36,7 +36,7 @@ class ServerTest < Minitest::Test
 
     assert_equal "rails-agent-kit", by_id[0].dig("result", "serverInfo", "name")
     tools = by_id[1].dig("result", "tools")
-    assert_equal %w[rails_routes rails_schema], tools.map { |t| t["name"] }.sort
+    assert_equal %w[rails_project_info rails_routes rails_schema], tools.map { |t| t["name"] }.sort
     schema_tool = tools.find { |t| t["name"] == "rails_schema" }
     props = schema_tool.dig("inputSchema", "properties")
     assert_equal %w[array string], props.dig("table", "anyOf").map { |s| s["type"] }.sort
@@ -73,6 +73,17 @@ class ServerTest < Minitest::Test
 
     found = JSON.parse(by_id[6].dig("result", "content", 0, "text"))
     assert_equal ["users"], found["matches"].map { |m| m["table"] }
+  end
+
+  def test_project_info_over_mcp
+    responses = rpc(fixture_path("project_info/rspec_devise"), init, initialized,
+                    call_tool(1, "rails_project_info"))
+    response = responses.find { |r| r["id"] == 1 }
+    info = JSON.parse(response.dig("result", "content", 0, "text"))
+    assert_equal false, response.dig("result", "isError")
+    assert_equal "8.1.4", info["rails"]
+    assert_equal "devise", info["auth"]
+    assert_equal "sidekiq", info["jobs"]
   end
 
   def test_routes_fallback_over_mcp

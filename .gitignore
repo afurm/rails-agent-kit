@@ -4,5 +4,5 @@
 /tmp/
 /coverage/
 *.gem
-Gemfile.lock
+/Gemfile.lock
 .DS_Store

@@ -45,6 +45,7 @@ class SkillsTest < Minitest::Test
     tool_names = body.scan(/`(rails_[a-z_]+)`/).flatten.uniq
     assert_includes tool_names, "rails_schema"
     assert_includes tool_names, "rails_routes"
+    assert_includes tool_names, "rails_project_info"
 
     source = File.read(File.expand_path("../lib/rails_agent_kit/server.rb", __dir__))
     exposed = source.scan(/tool_name\s+"([a-z_]+)"/).flatten

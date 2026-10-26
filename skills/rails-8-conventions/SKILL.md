@@ -28,7 +28,9 @@ change the code the way this app already does things.
 - **Routes:** call the `rails_routes` MCP tool (pass `filter:`) before you use a
   `*_path`/`*_url` helper, link, form `url:` or redirect. Without it, read
   `config/routes.rb` or run `bin/rails routes -g <term>`.
-- **Stack:** read `Gemfile.lock` before you pick a library. Use what the app already
+- **Stack:** call the `rails_project_info` MCP tool first, before you pick a library or
+  write a test. It reports the Rails and Ruby versions, database, test framework, auth,
+  jobs and frontend stack. Without it, read `Gemfile.lock`. Use what the app already
   uses (RSpec or Minitest, Sidekiq or Solid Queue, Pundit, Devise or the built-in
   auth generator, importmap or jsbundling). Don't add a gem when the app or Rails
   already covers it.

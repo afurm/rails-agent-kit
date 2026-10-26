@@ -25,6 +25,8 @@ Agents writing Rails code guess all the time. *Is it `user.full_name` or `user.n
 Is the helper `post_comments_path` or `comments_path`?* Each wrong guess is broken code and another review
 round. rails-agent-kit lets the agent ask your app.
 
+- **[`rails_project_info`](tools/rails-project-info):** Rails and Ruby versions, database, test framework,
+  auth, jobs and frontend in one small answer, read from `Gemfile.lock` and config files.
 - **[`rails_schema`](tools/rails-schema):** tables, columns, indexes and foreign keys from `db/schema.rb`,
   parsed statically. It never boots the app or connects to a database.
 - **[`rails_routes`](tools/rails-routes):** every route with its name, verb, path, `controller#action` and
