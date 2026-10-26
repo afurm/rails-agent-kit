@@ -97,6 +97,42 @@ When some requested tables don't exist, the rest are returned and the unknown na
 }
 ```
 
+## What it understands
+
+Besides tables, columns and indexes, the parser reads the constructs real schemas use:
+
+| In `db/schema.rb` | In the answer |
+| --- | --- |
+| `create_enum` and `t.enum ..., enum_type:` | `enums` with their values; the column gets `enum_type` and `values` |
+| `t.virtual ..., as:, stored:` | The column's real `type`, plus `virtual: true`, `as` and `stored` |
+| `t.check_constraint`, `add_check_constraint` | `check_constraints` on the table (`expression`, `name`) |
+| `t.exclusion_constraint`, `t.unique_constraint` | `exclusion_constraints` / `unique_constraints` on the table |
+| `create_table ..., primary_key: ["a", "b"]` | `primary_key` is the array, and those columns have `primary_key: true` |
+| `create_schema`, `create_table "reporting.totals"` | `schemas`; tables outside `public` keep their `schema.` prefix |
+| Expression indexes (`t.index "lower(email)"`) | The expression as the index's only `columns` entry |
+| scenic `create_view` (and `add_index` on a materialized view) | `views`, with `materialized` and `indexes` |
+| SQLite `create_virtual_table` (full-text search) | A table with `virtual: "fts5"` |
+
+Statements that span several lines and heredoc bodies are handled. It's checked against `rails new` apps on
+Rails 7.2, 8.0 and 8.1 (SQLite and PostgreSQL) and against the Mastodon and Forem schemas, with table and column
+counts compared to what the database reports.
+
+### Warnings
+
+The parser never drops a line silently. A line inside `create_table` it doesn't understand, or a top-level
+statement it skips (a trigger, an `execute`), is listed in `warnings` with its line number, and the warnings
+come with every answer, the overview included:
+
+```js
+"warnings": [
+  {
+    "line": 2387,
+    "statement": "create_trigger(\"update_reading_list_document\", :generated => true, :compatibility => 1). on(\"articles\")...",
+    "message": "skipped: only tables, indexes, constraints, foreign keys, enums and views are read"
+  }
+]
+```
+
 ## Size limit
 
 Any answer over 60 KB is replaced by the overview with `truncated: true` and a note on how to narrow the

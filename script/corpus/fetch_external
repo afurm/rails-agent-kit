@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Downloads the real-world schemas listed in test/corpus/external.json into tmp/corpus/external/, pinned to a
+# commit and checked against a SHA-256. They are fetched rather than committed because their projects use
+# licenses (AGPL-3.0) that differ from this gem's MIT license.
+#
+#   script/corpus/fetch_external           # download what's missing
+#   script/corpus/fetch_external --pin     # re-pin every source to its default branch's latest commit
+require "digest"
+require "fileutils"
+require "json"
+require "net/http"
+require "uri"
+
+root = File.expand_path("../..", __dir__)
+manifest_path = File.join(root, "test", "corpus", "external.json")
+manifest = JSON.parse(File.read(manifest_path))
+dir = File.join(root, "tmp", "corpus", "external")
+FileUtils.mkdir_p(dir)
+
+def get(url, limit = 5)
+  response = Net::HTTP.get_response(URI(url))
+  return get(response["location"], limit - 1) if response.is_a?(Net::HTTPRedirection) && limit.positive?
+  raise "GET #{url} failed: #{response.code}" unless response.is_a?(Net::HTTPSuccess)
+
+  response.body
+end
+
+pin = ARGV.include?("--pin")
+manifest["sources"].each do |source|
+  if pin
+    commit = JSON.parse(get("https://api.github.com/repos/#{source['repository']}/commits/HEAD"))
+    source["commit"] = commit["sha"]
+  end
+  dest = File.join(dir, "#{source['name']}.schema.rb")
+  if !pin && File.file?(dest) && Digest::SHA256.file(dest).hexdigest == source["sha256"]
+    puts "ok       #{source['name']}"
+    next
+  end
+
+  body = get("https://raw.githubusercontent.com/#{source['repository']}/#{source['commit']}/#{source['path']}")
+  digest = Digest::SHA256.hexdigest(body)
+  if pin
+    source["sha256"] = digest
+  elsif digest != source["sha256"]
+    abort "#{source['name']}: SHA-256 mismatch (expected #{source['sha256']}, got #{digest})"
+  end
+  File.binwrite(dest, body)
+  puts "fetched  #{source['name']} (#{source['repository']}@#{source['commit'][0, 12]})"
+end
+
+File.write(manifest_path, "#{JSON.pretty_generate(manifest)}\n") if pin

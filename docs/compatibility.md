@@ -8,8 +8,8 @@ nav_order: 8
 | | Versions | Status |
 | --- | --- | --- |
 | Ruby | 3.2, 3.3, 3.4, 4.0 | Tested in CI (`ruby-head` runs too, allowed to fail) |
-| Rails (`db/schema.rb` format) | 8.0 | Covered by test fixtures |
-| Rails | 7.2, 8.1 | Expected to work, but not yet covered by CI |
+| Rails | 7.2, 8.0, 8.1 | Schemas and `bin/rails routes --expanded` output of generated apps (SQLite and PostgreSQL) are tested in CI |
+| Real-world schemas | Mastodon, Forem | Tested in CI against the table and column counts PostgreSQL reports |
 | MCP clients | Cursor, Claude Code, Codex, Claude Desktop, or any stdio MCP client | See [Getting started](getting-started) |
 
 The bundled skill targets Rails 8 conventions. On Rails 7.x the tools work the same, but some skill advice

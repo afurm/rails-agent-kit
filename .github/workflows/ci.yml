@@ -25,4 +25,11 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+      - uses: actions/cache@v4
+        with:
+          path: tmp/corpus/external
+          key: corpus-external-${{ hashFiles('test/corpus/external.json') }}
+      - run: script/corpus/fetch_external
       - run: bundle exec rake test
+        env:
+          CORPUS_REQUIRED: "1"

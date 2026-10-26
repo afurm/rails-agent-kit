@@ -86,10 +86,15 @@ cd docs && bundle install && bundle exec jekyll serve   # http://localhost:4000/
 | `exe/rails-agent-kit` | CLI entry point |
 | `docs/` | The documentation site, deployed to GitHub Pages from `main` |
 | `test/fixtures/` | Small fixture apps: `schema.rb`, `structure.sql`, captured routes, a stub `bin/rails` |
+| `test/corpus/` | Real schemas and routes from generated apps and open-source projects, with expected counts ([README](test/corpus/README.md)) |
+| `script/corpus/` | Regenerates and fetches the corpus |
 
 ## Tests
 
 - Every behaviour change needs a test. Parser fixes should add a minimal fixture under `test/fixtures/`.
+- `test/corpus_test.rb` compares the parsers with real schemas and routes. Run `script/corpus/fetch_external`
+  once to include the Mastodon and Forem schemas locally; without them those tests are skipped (CI always runs
+  them).
 - Tests use Minitest, run offline, and never boot a real Rails app. Use the stub `bin/rails` and the captured
   routes output instead.
 - `test/server_test.rb` drives `exe/rails-agent-kit` over stdio JSON-RPC end to end. Extend it when you add or

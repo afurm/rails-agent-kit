@@ -1,0 +1,153 @@
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_093212) do
+  create_schema "reporting"
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "btree_gist"
+  enable_extension "citext"
+  enable_extension "pg_catalog.plpgsql"
+
+  # Custom types defined in this database.
+  # Note that some types may not work with other database engines. Be careful if changing database.
+  create_enum "public.order_status", ["pending", "paid", "shipped"]
+
+  create_table "public.accounts", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_accounts_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_accounts_on_reset_password_token", unique: true
+  end
+
+  create_table "public.action_text_rich_texts", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "body"
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id", "name"], name: "index_action_text_rich_texts_uniqueness", unique: true
+  end
+
+  create_table "public.active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "public.active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "public.active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "public.admin_reports", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "public.bookings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "room_id", null: false
+    t.tsrange "during", null: false
+
+    t.exclusion_constraint "room_id WITH =, during WITH &&", using: :gist, name: "no_overlapping_bookings"
+  end
+
+  create_table "public.order_items", primary_key: ["order_id", "position"], force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.integer "position", null: false
+    t.string "sku", null: false
+  end
+
+  create_table "public.orders", comment: "Orders, with a long table comment that keeps going, so the dumped create_table line is a long one", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.enum "status", default: "pending", null: false, enum_type: "public.order_status"
+    t.decimal "subtotal", precision: 10, scale: 2, null: false
+    t.decimal "tax", precision: 10, scale: 2, default: "0.0", null: false
+    t.virtual "total", type: :decimal, precision: 10, scale: 2, as: "(subtotal + tax)", stored: true
+    t.string "notes", default: "line one\nline two, with a comma # and a hash"
+    t.citext "coupon"
+    t.jsonb "metadata"
+    t.string "tags", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_orders_on_account_id"
+    t.check_constraint "subtotal >= 0::numeric", name: "subtotal_non_negative"
+    t.check_constraint "tax >= 0::numeric", name: "tax_non_negative"
+  end
+
+  create_table "public.posts", force: :cascade do |t|
+    t.string "title"
+    t.text "body"
+    t.boolean "published"
+    t.bigint "account_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_posts_on_account_id"
+  end
+
+  create_table "public.sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "ip_address"
+    t.string "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "public.settings", id: false, force: :cascade do |t|
+    t.string "key", null: false
+    t.text "value"
+  end
+
+  create_table "public.users", force: :cascade do |t|
+    t.string "email_address", null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
+  add_foreign_key "public.active_storage_attachments", "public.active_storage_blobs", column: "blob_id"
+  add_foreign_key "public.active_storage_variant_records", "public.active_storage_blobs", column: "blob_id"
+  add_foreign_key "public.orders", "public.accounts"
+  add_foreign_key "public.posts", "public.accounts"
+  add_foreign_key "public.sessions", "public.users"
+
+  create_table "reporting.daily_totals", force: :cascade do |t|
+    t.date "day", null: false
+    t.decimal "total", precision: 12, scale: 2
+  end
+end

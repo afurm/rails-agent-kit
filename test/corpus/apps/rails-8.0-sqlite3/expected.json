@@ -1,0 +1,26 @@
+{
+  "rails": "8.0.5.1",
+  "database": "sqlite3",
+  "schema": {
+    "tables": {
+      "accounts": 8,
+      "action_text_rich_texts": 7,
+      "active_storage_attachments": 6,
+      "active_storage_blobs": 9,
+      "active_storage_variant_records": 3,
+      "admin_reports": 4,
+      "order_items": 3,
+      "orders": 9,
+      "posts": 7,
+      "sessions": 6,
+      "settings": 2,
+      "users": 5
+    }
+  },
+  "routes": {
+    "routes": 73,
+    "engines": {
+      "StatusEngine::Engine": 2
+    }
+  }
+}

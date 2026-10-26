@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# Regenerates the `rails new` part of test/corpus: for each Rails version and database it creates an app,
+# adds a few generators and a migration that uses the schema constructs we need to parse, then copies
+# db/schema.rb, the `bin/rails routes --expanded` output and counts taken from the booted app.
+#
+# Needs: the listed Rails versions installed as gems, a running PostgreSQL that the current user can create
+# databases in (PGHOST/PGUSER/PGPASSWORD are passed through), and `RUBY_<major>_<minor>` pointing at a Ruby
+# bin directory when the default `ruby` can't run a Rails version.
+#
+#   script/corpus/generate_apps                 # every app
+#   script/corpus/generate_apps 8.1 postgresql  # one app
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+CORPUS="$ROOT/test/corpus/apps"
+WORK="${CORPUS_WORK:-$ROOT/tmp/corpus}"
+VERSIONS=(7.2.4 8.0.5.1 8.1.4)
+DATABASES=(sqlite3 postgresql)
+
+ruby_bin_for() { # Rails 7.2 and 8.0 don't support Ruby 4 yet
+  case "$1" in
+    7.*|8.0*) echo "${RUBY_3_4:-}" ;;
+    *) echo "${RUBY_4_0:-}" ;;
+  esac
+}
+
+generate() {
+  local version="$1" db="$2"
+  local minor; minor="$(echo "$version" | cut -d. -f1-2)"
+  local name="rails-${minor}-${db}"
+  local app="$WORK/app${minor//./}_${db}" out="$CORPUS/$name"
+  local bin; bin="$(ruby_bin_for "$version")"
+  [[ -n "$bin" ]] && export PATH="$bin:$PATH"
+  echo "==> $name (Rails $version, $(ruby -v | cut -d' ' -f2))"
+
+  rm -rf "$app" && mkdir -p "$WORK" "$out"
+  rails "_${version}_" new "$app" --database="$db" --skip-git --skip-docker --skip-kamal --skip-thruster \
+    --skip-ci --skip-test --skip-system-test --skip-bootsnap --quiet >/dev/null
+  cd "$app"
+
+  if [[ "$db" == postgresql ]]; then # dump the tables of the extra "reporting" schema too
+    sed -i '0,/^  encoding: unicode/s//  encoding: unicode\n  schema_search_path: "public,reporting"/' config/database.yml
+  fi
+
+  bundle add devise sidekiq --skip-install >/dev/null
+  bundle install --quiet
+  bin/rails generate devise:install >/dev/null
+  bin/rails generate devise Account >/dev/null
+  if [[ "$minor" != 7.2 ]]; then bin/rails generate authentication >/dev/null; fi
+  bin/rails generate scaffold Post title:string body:text published:boolean "account:references" >/dev/null
+  bin/rails generate scaffold Admin::Report name:string >/dev/null
+  bin/rails active_storage:install >/dev/null
+  bin/rails action_text:install >/dev/null
+  bundle install --quiet # action_text:install can add image_processing to the Gemfile
+  # An hour ahead so it runs after the generated migrations (Rails refuses timestamps over a day ahead).
+  local migration; migration="db/migrate/$(date -u -d "+1 hour" +%Y%m%d%H%M%S)_add_schema_constructs.rb"
+  sed "s/Migration\[X\]/Migration[$minor]/" "$ROOT/script/corpus/templates/constructs_${db}.rb" > "$migration"
+  cp "$ROOT/script/corpus/templates/routes.rb" config/routes.rb
+  cp "$ROOT/script/corpus/templates/status_engine.rb" config/initializers/zz_status_engine.rb
+  mkdir -p app/controllers/status_engine
+  cp "$ROOT/script/corpus/templates/status_controller.rb" app/controllers/status_engine/status_controller.rb
+
+  bin/rails db:drop db:create >/dev/null 2>&1 || bin/rails db:create >/dev/null
+  bin/rails db:migrate >/dev/null
+
+  cp db/schema.rb "$out/schema.rb"
+  bin/rails routes --expanded > "$out/routes_expanded.txt"
+  {
+    echo "{"
+    echo "  \"rails\": \"$version\","
+    echo "  \"database\": \"$db\","
+    echo "  \"schema\": $(bin/rails runner "$ROOT/script/corpus/count_schema.rb" | sed '2,$s/^/  /'),"
+    echo "  \"routes\": $(bin/rails runner "$ROOT/script/corpus/count_routes.rb" | sed '2,$s/^/  /')"
+    echo "}"
+  } > "$out/expected.json"
+  # Absolute paths in Source Location depend on where the app was generated.
+  sed -i "s#$app/##g; s#$HOME#~#g" "$out/routes_expanded.txt"
+  cd "$ROOT"
+}
+
+if [[ $# -eq 2 ]]; then
+  for v in "${VERSIONS[@]}"; do
+    if [[ "$v" == "$1"* ]]; then generate "$v" "$2"; fi
+  done
+else
+  for v in "${VERSIONS[@]}"; do for db in "${DATABASES[@]}"; do generate "$v" "$db"; done; done
+fi
