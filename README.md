@@ -29,6 +29,8 @@ Agents writing Rails code guess all the time. *Is it `user.full_name` or `user.n
 the helper `post_comments_path` or `comments_path`?* Each wrong guess is broken code and another review round.
 rails-agent-kit lets the agent ask your app.
 
+* **Stack:** Rails and Ruby versions, database, test framework, auth, jobs, frontend and deploy tools in one
+  small answer, read from `Gemfile.lock` and config files, so the agent uses what the app already uses.
 * **Schema:** tables, columns, indexes and foreign keys from `db/schema.rb`, parsed statically. It never boots
   the app or connects to a database. `db/structure.sql` gets a best-effort parse.
 * **Schema overview and search:** a compact overview by default, several tables
@@ -219,14 +221,16 @@ rails-agent-kit install-skills --root /path/to/your/rails/app --agent gemini   #
 
 ## Tools
 
-Both tools are read-only and return JSON.
+All three tools are read-only and return JSON.
 
 | Tool | Parameters | Returns | Boots the app? |
 | --- | --- | --- | --- |
+| `rails_project_info` | None | Rails, Ruby and `load_defaults` versions, `api_only`, database adapter and databases, test framework and data, auth, authorization, jobs/cache/cable backends, frontend, serializers, lint and deploy tools, mounted engines, notable gems and key paths. Unknown values are `null` | **No.** Reads `Gemfile.lock` and config files |
 | `rails_schema` | All optional. `table`: one exact name, an array or a comma-separated list. `search`: case-insensitive part of a table or column name. `detail`: `overview` or `full` | With no arguments, a compact overview (each table's column count, non-default primary key and foreign key targets). With `table`, full columns (type, null, default, limit, …), indexes and foreign keys. With `search`, the matching tables and columns | **No.** Parses `db/schema.rb` statically, with a best-effort fallback to `db/structure.sql` |
 | `rails_routes` | `filter` (optional, case-insensitive substring of name, path, verb or `controller#action`) | Each route's name, verb, path, `controller#action` and source location | **Yes.** Runs `bin/rails routes --expanded`. If that fails or times out, it explains why and returns the raw `config/routes.rb` |
 
-Responses are compact (single-line) JSON. Agents usually call `rails_schema` with no arguments first, so that
+Responses are compact (single-line) JSON. Agents call `rails_project_info` first (about 1 KB), then usually
+`rails_schema` with no arguments, so that
 answer stays small even on large apps: a generated 300-table schema gives about 23 KB, where the full dump is
 over 1 MB. Any `rails_schema` answer over 60 KB comes back as the overview plus a note on how to narrow the
 request (`truncated: true`).
@@ -269,8 +273,8 @@ rails-agent-kit --root . --routes-file tmp/routes.txt
 
 ## Agent skill: Rails 8 conventions
 
-[`skills/rails-8-conventions/SKILL.md`](skills/rails-8-conventions/SKILL.md) makes the agent check `rails_schema`,
-`rails_routes` and `Gemfile.lock` before it edits code. It then follows the Rails 8 defaults: `params.expect`, the
+[`skills/rails-8-conventions/SKILL.md`](skills/rails-8-conventions/SKILL.md) makes the agent check `rails_project_info`,
+`rails_schema` and `rails_routes` before it edits code. It then follows the Rails 8 defaults: `params.expect`, the
 built-in authentication generator, `rate_limit`, Solid Queue/Cache/Cable, Hotwire with importmap/Propshaft,
 reversible migrations, and tests in the framework the app already uses. It also covers a paired Next.js
 frontend.

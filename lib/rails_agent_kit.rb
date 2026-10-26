@@ -7,10 +7,11 @@ require_relative "rails_agent_kit/schema_inspector"
 require_relative "rails_agent_kit/routes_parser"
 require_relative "rails_agent_kit/ruby_env"
 require_relative "rails_agent_kit/routes_inspector"
+require_relative "rails_agent_kit/project_info"
 require_relative "rails_agent_kit/skill_installer"
 require_relative "rails_agent_kit/client_config"
 
-# Gives coding agents ground truth about a Rails app (schema, routes) over MCP.
+# Gives coding agents ground truth about a Rails app (stack, schema, routes) over MCP.
 module RailsAgentKit
   class Error < StandardError; end
 

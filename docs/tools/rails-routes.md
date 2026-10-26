@@ -1,7 +1,7 @@
 ---
 title: rails_routes
 parent: Tools
-nav_order: 2
+nav_order: 3
 ---
 
 # `rails_routes`

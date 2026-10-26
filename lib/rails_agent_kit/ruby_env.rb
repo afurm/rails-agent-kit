@@ -56,6 +56,11 @@ module RailsAgentKit
       end
     end
 
+    # The version the app asks for and the file that says so (relative to the app root), or nil.
+    def requirement
+      required_version
+    end
+
     # A one-line explanation for a Result that wasn't found.
     def self.missing_message(result)
       hint = format(INSTALL_HINTS.fetch(result.manager || "rbenv"), result.required_version.sub(/\A[~><=\s]+/, ""))

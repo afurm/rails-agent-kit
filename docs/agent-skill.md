@@ -12,9 +12,9 @@ Code load when the agent works on matching files (`app/**`, `config/**`, `db/**`
 
 It tells the agent to:
 
-- **check the facts first:** call `rails_schema` before it writes a model attribute, query, validation,
-  fixture or migration; call `rails_routes` before it uses a `*_path` / `*_url` helper; read `Gemfile.lock`
-  before it picks a library; and copy the structure of nearby files;
+- **check the facts first:** call `rails_project_info` to learn the stack; call `rails_schema` before it
+  writes a model attribute, query, validation, fixture or migration; call `rails_routes` before it uses a
+  `*_path` / `*_url` helper; use the libraries the app already has; and copy the structure of nearby files;
 - **follow the Rails 8 defaults** unless the Gemfile says otherwise: `params.expect`, the built-in authentication
   generator, `rate_limit`, Solid Queue / Cache / Cable, Hotwire with importmap and Propshaft;
 - write **reversible migrations**, and tests in the framework the app already uses;
