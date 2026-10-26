@@ -6,12 +6,12 @@ something matters to you.
 
 ## Next
 
-- **Parser robustness:** test against real-world schemas and routes (`rails new` on 7.2–8.1, and large open-source apps).
+- **`structure.sql`:** foreign keys, constraints and enums, tested against large open-source schemas.
 - **Multi-database apps:** the Solid Queue/Cache/Cable schemas and extra databases from `database.yml`.
 
 ## Later
 
-- New tools: `rails_project_info` (stack detection), `rails_models` (associations, validations, enums and scopes,
+- New tools: `rails_models` (associations, validations, enums and scopes,
   checked against the schema), `rails_jobs`, `rails_migrations`.
 - `rails-agent-kit doctor` for setup diagnostics, cached routes, and a static routes fallback when the app can't boot.
 - More skills (testing, safe migrations, Hotwire, security review) and a Claude Code plugin.

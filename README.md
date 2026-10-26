@@ -18,7 +18,7 @@ routes, plus a Rails 8 skill that tells the agent to check them before it writes
 </div>
 
 > [!NOTE]
-> rails-agent-kit is early (v0.2.0), and the API may change before 1.0. Using it? Tell us how it went in
+> rails-agent-kit is early (v0.3.0), and the API may change before 1.0. Using it? Tell us how it went in
 > [Discussions](https://github.com/afurm/rails-agent-kit/discussions) or [open an issue](https://github.com/afurm/rails-agent-kit/issues).
 
 ---
