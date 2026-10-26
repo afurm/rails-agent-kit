@@ -7,6 +7,32 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **`rails_schema` reads the rest of a real schema.** Postgres enums (`create_enum`, with each `t.enum` column's
+  `enum_type` and `values`), check, exclusion and unique constraints, composite primary keys, `create_schema` and
+  tables in other schemas, expression indexes, scenic views (with indexes on materialized views) and SQLite
+  full-text search tables. Virtual columns report their real type with `virtual`, `as` and `stored`. By @afurm.
+- **Warnings instead of silent gaps.** A line inside `create_table` the parser doesn't understand, or a top-level
+  statement it skips (a trigger, an `execute`), is listed in `warnings` with its line number, in every
+  `rails_schema` answer. By @afurm.
+- **Engine routes say where they're mounted.** Routes listed under an engine in `bin/rails routes --expanded`
+  carry `engine` and `mounted_at`, since their paths are relative to the mount point. By @afurm.
+- **Tested against real apps.** A test corpus of `rails new` apps on Rails 7.2, 8.0 and 8.1 (SQLite and
+  PostgreSQL, with Devise, Sidekiq::Web, Active Storage and a mounted engine) plus the Mastodon and Forem schemas.
+  Table, column and route counts must match what the booted app and PostgreSQL report. By @afurm.
+
+### Fixed
+
+- **`t.check_constraint` is no longer read as a column** named after its expression, which added phantom columns
+  to tables with check constraints. By @afurm.
+- **Expression indexes are no longer dropped.** `t.index "lower(email)"` and `add_index` with an SQL expression
+  containing quotes were skipped; they're now listed with the expression. By @afurm.
+- **Tables dumped as `public.users`** (apps with several schemas on the search path) are reported as `users`,
+  so `table: "users"` finds them; enums get the same treatment. By @afurm.
+- **Statements that span several lines** (long `create_table` options, multi-line defaults) and heredocs are
+  parsed as one statement, and escaped characters in string defaults (`\n`, `\"`) are unescaped. By @afurm.
+
 ## [0.2.0] - 2026-10-23
 
 rails-agent-kit 0.2.0 keeps large schemas out of your agent's context and makes setup one command:

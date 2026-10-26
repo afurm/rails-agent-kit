@@ -106,7 +106,10 @@ module RailsAgentKit
         entry[:references] = refs if refs.any?
         entry
       end
-      meta(result).merge(detail: "overview", table_count: tables.size, hint: OVERVIEW_HINT, tables: tables)
+      out = meta(result).merge(detail: "overview", table_count: tables.size, hint: OVERVIEW_HINT, tables: tables)
+      out[:enums] = result[:enums] if result[:enums]
+      out[:views] = result[:views].map { |v| v[:name] } if result[:views]
+      out
     end
 
     def search_result(result, search)
@@ -131,8 +134,9 @@ module RailsAgentKit
       guard_size(out, result)
     end
 
+    # Parser warnings travel with every answer: they mark statements that are missing from the result.
     def meta(result)
-      result.slice(:source, :version, :note)
+      result.slice(:source, :version, :note, :warnings)
     end
 
     def guard_size(out, result)

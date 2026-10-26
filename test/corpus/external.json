@@ -1,0 +1,23 @@
+{
+  "sources": [
+    {
+      "name": "mastodon",
+      "repository": "mastodon/mastodon",
+      "path": "db/schema.rb",
+      "license": "AGPL-3.0",
+      "commit": "2bc820fb8426465a4e8c33df3bb3ae415cf2b12f",
+      "sha256": "b4cc5c6c4f8c61b1d25bb7cdd4822df7cdb4d94bfc7680b6fc9ab3384cddacb3"
+    },
+    {
+      "name": "forem",
+      "repository": "forem/forem",
+      "path": "db/schema.rb",
+      "license": "AGPL-3.0",
+      "commit": "c8f8ed49963b13b026b03e40341b37df7f63e3ab",
+      "sha256": "48f2b86b29ccfd91bf2674eece20e874493e2d1e161dffd93fb53d4565b2547f",
+      "expected_warnings": [
+        "create_trigger("
+      ]
+    }
+  ]
+}

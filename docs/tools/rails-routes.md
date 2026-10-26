@@ -52,6 +52,26 @@ route concerns resolve exactly as Rails sees them.
 
 `total` is the number of routes in the app, and `count` is the number that matched the filter.
 
+## Engines and mounted apps
+
+Routes of a mounted engine have paths relative to where the engine is mounted, so they come with `engine` and
+`mounted_at`. The mount itself is a route whose `action` is the engine or Rack app:
+
+```js
+{ "name": "status_engine", "path": "/status", "action": "StatusEngine::Engine", "source_location": "config/routes.rb:18" },
+{ "name": "sidekiq_web", "path": "/sidekiq", "action": "Sidekiq::Web", "source_location": "config/routes.rb:17" },
+{
+  "engine": "StatusEngine::Engine",
+  "mounted_at": "/status",
+  "name": "details",
+  "verb": "GET",
+  "path": "/details(.:format)",
+  "action": "show",
+  "controller": "status_engine/status",
+  "controller_action": "status_engine/status#show"
+}
+```
+
 ## How it runs
 
 The tool runs `bin/rails routes --expanded` in `--root` with Bundler's environment cleared, so the app loads its
