@@ -299,8 +299,7 @@ so the rest of your file stays yours.
 | | Versions | Status |
 | --- | --- | --- |
 | Ruby | 3.2, 3.3, 3.4, 4.0 | Tested in CI (`ruby-head` runs too, allowed to fail) |
-| Rails (`db/schema.rb` format) | 8.0 | Covered by test fixtures |
-| Rails | 7.2, 8.1 | Expected to work, but not yet covered by CI ([planned](ROADMAP.md)) |
+| Rails | 7.2, 8.0, 8.1 | Generated SQLite and PostgreSQL `db/schema.rb` and `bin/rails routes --expanded` snapshots are tested in CI ([corpus](test/corpus/README.md)) |
 | MCP clients | Cursor, Claude Code, Codex, Claude Desktop, or any stdio MCP client | Configuration shown above |
 
 The bundled skill targets Rails 8 conventions. On Rails 7.x, the tools work the same, but some skill advice
