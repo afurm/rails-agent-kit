@@ -7,6 +7,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Read simple PostgreSQL foreign keys from `structure.sql`.** Named single-column keys in
+  `ALTER TABLE [ONLY] ... ADD CONSTRAINT` statements appear in full answers and overview references,
+  using the existing foreign-key fields. Unsupported clauses and ambiguous tables are skipped;
+  table/index output is unchanged. By @afurm.
+
 ## [0.3.0] - 2026-10-26
 
 rails-agent-kit 0.3.0 adds `rails_project_info`, one small call that tells your agent which stack the app uses,

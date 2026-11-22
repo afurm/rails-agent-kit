@@ -75,6 +75,19 @@ class ServerTest < Minitest::Test
     assert_equal ["users"], found["matches"].map { |m| m["table"] }
   end
 
+  def test_structure_sql_foreign_keys_over_mcp
+    responses = rpc(fixture_path("pg_foreign_keys"), init, initialized,
+                    call_tool(1, "rails_schema", { table: "accounts" }),
+                    call_tool(2, "rails_schema"))
+    by_id = responses.to_h { |r| [r["id"], r] }
+    full = JSON.parse(by_id[1].dig("result", "content", 0, "text"))
+    assert_equal false, by_id[1].dig("result", "isError")
+    assert_equal ["accounts"], full["tables"].map { |t| t["name"] }
+    assert_equal %w[fk_entries_account fk_entries_code], full["foreign_keys"].map { |fk| fk["name"] }
+    overview = JSON.parse(by_id[2].dig("result", "content", 0, "text"))
+    assert_equal %w[accounts entries], overview["tables"].find { |t| t["name"] == "entries" }["references"]
+  end
+
   def test_project_info_over_mcp
     responses = rpc(fixture_path("project_info/rspec_devise"), init, initialized,
                     call_tool(1, "rails_project_info"))

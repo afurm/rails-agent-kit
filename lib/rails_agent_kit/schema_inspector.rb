@@ -67,7 +67,8 @@ module RailsAgentKit
         StructureSqlParser.parse_file(structure_sql).merge(
           source: "db/structure.sql",
           note: "Parsed from db/structure.sql on a best-effort basis; column types are raw SQL and " \
-                "foreign keys/constraints are not extracted. db/schema.rb gives more precise results."
+                "only named single-column PostgreSQL foreign keys without extra clauses are extracted; " \
+                "other constraints are omitted. db/schema.rb gives more precise results."
         )
       else
         { error: "No db/schema.rb or db/structure.sql found under #{@root}. " \

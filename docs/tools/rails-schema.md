@@ -141,8 +141,24 @@ request, so a single call can't flood the agent's context.
 ## `db/structure.sql`
 
 Apps that use `config.active_record.schema_format = :sql` get a best-effort parse of `CREATE TABLE`
-statements. The answer has `"source": "db/structure.sql"` and a note that column types are raw SQL. Foreign keys
-and constraints aren't extracted from `structure.sql` yet.
+statements. The answer has `"source": "db/structure.sql"` and a note that column types are raw SQL.
+Named, single-column PostgreSQL foreign keys are also read from complete pg_dump-style
+`ALTER TABLE [ONLY] ... ADD CONSTRAINT ... FOREIGN KEY (...) REFERENCES ... (...);` statements.
+Tables must be unqualified or in `public`, present in the dump, and unambiguous. Simple unquoted identifiers
+and double-quoted identifiers containing letters, digits, underscores or dollar signs are supported.
+
+When supported keys exist, full answers include the same top-level `foreign_keys` array as `schema.rb`,
+with `from_table`, `to_table`, `column`, `primary_key` and `name`. Table selection includes incoming and
+outgoing keys; overview entries include their `references`. For example:
+
+```json
+{"from_table":"entries","to_table":"accounts","column":"account_id","primary_key":"id","name":"fk_entries_account"}
+```
+
+Composite keys, actions (`ON DELETE` / `ON UPDATE`), deferrability, validation/match clauses, inline keys,
+other schemas and other constraint syntax are skipped rather than partially reported. No `foreign_keys`
+field is added when no supported keys are found. Existing table and index parsing remains best effort;
+SQL is never executed.
 
 ## Errors
 
